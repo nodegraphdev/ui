@@ -1,0 +1,7 @@
+build/
+out/
+
+CMakeFiles/
+CMakeCache.txt
+
+thirdparty/win/
