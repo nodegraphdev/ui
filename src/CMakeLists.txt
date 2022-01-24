@@ -1,11 +1,12 @@
 
 set( SOURCES 
 	ngui.c
-
+	ng_math.c
 )
 
 set( HEADERS
 	ngui.h
+	ng_math.h
 )
 
 
