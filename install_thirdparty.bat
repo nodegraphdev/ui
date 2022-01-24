@@ -2,10 +2,6 @@
 
 set A_CDSTART=%cd%
 
-echo ==== Checking for required tools ==== 
-echo ======= Installing libraries =======
-echo =========== Building GLFW ===========
-echo =========== Copying GLFW ===========
 
 @REM Git Check
 git --version
@@ -41,18 +37,18 @@ cmake --build temp\glfwbuild --config Release
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto buildFail
 
-echo Copying GLFW
+echo =========== Copying GLFW ===========
 mkdir glfw
 mkdir glfw\lib
 copy temp\glfwbuild\src\Release\glfw3.lib glfw\lib\glfw3.lib
 robocopy temp\glfw\include glfw\include /E
 
-echo Cleaning up
+echo ============ Cleaning up ============
 rmdir /S /Q temp
 
-echo ==================================================================
-echo Done!
-echo ==================================================================
+echo ================
+echo Install success!
+echo ================
 cd %A_CDSTART%
 exit /b 0
 
