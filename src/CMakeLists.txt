@@ -4,12 +4,18 @@ set( SOURCES
 
 )
 
-set( INCLUDE_DIRS
-
-
+set( HEADERS
+	ngui.h
 )
 
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}../include )
-add_library( ngui ${SOURCES} )
-target_include_directories( ngui PRIVATE ${INCLUDE_DIRS} )
+# Set the directory for the headers, otherwise CMake can't find them
+set(SOURCES_HEADERS "")
+foreach(HEADER ${HEADERS})
+	list(APPEND SOURCES_HEADERS ../include/ngui/${HEADER})
+endforeach()
+
+
+add_library( ngui ${SOURCES} ${SOURCES_HEADERS} )
+target_include_directories( ngui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+target_link_libraries( ngui glfw3 glad )

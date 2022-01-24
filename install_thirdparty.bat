@@ -18,6 +18,7 @@ rmdir /S /Q thirdparty\win
 mkdir thirdparty\win
 cd thirdparty\win
 
+mkdir lib
 mkdir temp
 
 echo =========== Building GLFW ===========
@@ -38,10 +39,8 @@ set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto buildFail
 
 echo =========== Copying GLFW ===========
-mkdir glfw
-mkdir glfw\lib
-copy temp\glfwbuild\src\Release\glfw3.lib glfw\lib\glfw3.lib
-robocopy temp\glfw\include glfw\include /E
+copy temp\glfwbuild\src\Release\glfw3.lib lib\glfw3.lib
+robocopy temp\glfw\include include /E
 
 echo ============ Cleaning up ============
 rmdir /S /Q temp
