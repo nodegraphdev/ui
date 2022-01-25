@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ngui/ngui.h>
+#include <stdlib.h>
 
 nvec2i test_size(nvec2i min, void *data)
 {
@@ -18,9 +19,15 @@ void test_container_paint(nvec2i size, void *data)
 	printf("End test_container\n");
 }
 
-void test_text_paint(nvec2i size, void *data)
+struct test_text_data
 {
-	printf("Painting text: %s\n", data);
+	char *prefix, *text;
+};
+
+void test_text_paint(nvec2i size, void *d)
+{
+	struct test_text_data *data = d;
+	printf("Painting text: %s%s\n", data->prefix, data->text);
 }
 
 void test_container()
@@ -30,7 +37,11 @@ void test_container()
 
 void test_text(char *text)
 {
-	ng_add_render_object(test_size, test_text_paint, (void *) strdup(text));
+	struct test_text_data *data = malloc(sizeof(struct test_text_data));
+	data->prefix = ng_get_props("test-prefix");
+	data->text = text;
+
+	ng_add_render_object(test_size, test_text_paint, data);
 }
 
 
@@ -39,18 +50,25 @@ int main()
 	ng_init();
 	printf("Hello!");
 
+	ng_register_prop("test-prefix", NG_PROP_STRING);
+
+	ng_reset_props();
+
 	test_container();
 	{
+		ng_prop("test-prefix", "1-");
 		test_text("A");
 		test_text("B");
 
 		test_container();
 		{
+			ng_prop("test-prefix", "2-");
 			test_text("C");
 			test_text("D");
 		}
 		ng_end();
 
+		ng_prop("test-prefix", "3-");
 		test_text("E");
 	}
 	ng_end();

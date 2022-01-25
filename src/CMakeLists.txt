@@ -2,7 +2,8 @@
 set( SOURCES 
 	ngui.c
 	ng_math.c
-	ng_renderobject.c
+	ng_render_tree.c
+	ng_properties.c
 )
 
 set( HEADERS

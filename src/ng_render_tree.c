@@ -31,7 +31,6 @@ struct ng_container
 	int num_children;
 };
 
-static struct ng_render_object *ng_last_render_object = NULL;
 static struct ng_container *ng_current_container = NULL;
 static struct ng_container *ng_root_container = NULL;
 static const nvec2i nvec2i_zero_ = { 0, 0 };
