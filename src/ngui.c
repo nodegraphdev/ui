@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+// don't want this to be visible to the user
+extern void ng_render_tree_init_();
+
 int ng_init()
 {
 	if (!glfwInit())
@@ -19,7 +22,10 @@ int ng_init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		return 1;
 
+	ng_render_tree_init_();
 
+	// For now don't do the render loop
+	/*
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -29,6 +35,7 @@ int ng_init()
 
 		glfwSwapBuffers(window);
 	}
+	*/
 
 
 	glfwTerminate();

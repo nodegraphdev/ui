@@ -2,6 +2,7 @@
 set( SOURCES 
 	ngui.c
 	ng_math.c
+	ng_renderobject.c
 )
 
 set( HEADERS
@@ -25,7 +26,7 @@ endif()
 
 add_library( ngui ${SOURCES} ${SOURCES_HEADERS} )
 target_include_directories( ngui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( ngui ${GLFW_LIB_NAME} glad)
+target_link_libraries( ngui ${GLFW_LIB_NAME} glad )
 
 if(UNIX)
 	target_link_libraries( ngui dl )

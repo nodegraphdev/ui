@@ -7,6 +7,9 @@
 typedef struct nvec2 {
 	float x, y;
 } nvec2;
+typedef struct nvec2i {
+	int x, y;
+} nvec2i;
 typedef struct nvec3 {
 	float x, y, z;
 } nvec3;
