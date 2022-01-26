@@ -44,9 +44,9 @@ void test_text_paint(nvec2i size, void *d)
 
 	ng_paintctx *ctx = ng_painter_create();
 
-	ng_painter_setcolor(ctx, 0, 0, 0);
+	ng_painter_set_color(ctx, 0, 0, 0);
 	ng_painter_rect(ctx, data->width, data->width, 7, 7);
-	ng_painter_setcolor(ctx, 255, 255, 255);
+	ng_painter_set_color(ctx, 255, 255, 255);
 	ng_painter_rect(ctx, data->width+1, data->width+1, 5, 5);
 
 	ng_paintdraw *draw = ng_painter_build(ctx);

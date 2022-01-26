@@ -42,6 +42,13 @@ float ng_magv2(nvec2 a);
 
 nvec2 ng_rotatev2(nvec2 a, float angle);
 
+// Vector 2 Integer //
+nvec2i ng_addv2i(nvec2i a, nvec2i b);
+nvec2i ng_subv2i(nvec2i a, nvec2i b);
+nvec2i ng_scalev2i(nvec2i a, int b);
+int    ng_dotv2i(nvec2i a, nvec2i b);
+
+
 // Vector 3 //
 nvec3 ng_addv3(nvec3 a, nvec3 b);
 nvec3 ng_subv3(nvec3 a, nvec3 b);

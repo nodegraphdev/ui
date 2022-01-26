@@ -48,6 +48,25 @@ float ng_dotv2p(nvec2* a, nvec2* b)
 }
 
 
+// Vector 2 Integer functions
+nvec2i ng_addv2i(nvec2i a, nvec2i b)
+{
+    return (nvec2i){a.x+b.x,a.y+b.y};
+}
+nvec2i ng_subv2i(nvec2i a, nvec2i b)
+{
+    return (nvec2i){a.x-b.x,a.y-b.y};
+}
+nvec2i ng_scalev2i(nvec2i a, int b)
+{
+    return (nvec2i){a.x*b,a.y*b};
+}
+int ng_dotv2i(nvec2i a, nvec2i b)
+{
+    return a.x*b.x+a.y*b.y;
+}
+
+
 
 // Vector 3 functions
 nvec3 ng_crossv3(nvec3 a, nvec3 b)

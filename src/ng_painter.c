@@ -9,6 +9,11 @@
 
 enum
 {
+	NG_PAINT_BRUSH_SOLID,
+	NG_PAINT_BRUSH_GRADIENT,
+};
+enum
+{
 	NG_PAINTCMD_NONE,
 	NG_PAINTCMD_TRI,
 	NG_PAINTCMD_RECT,
@@ -18,7 +23,16 @@ enum
 // Current visual state of the next draw
 typedef struct ng_paintbrush
 {
-	nvec3 color;
+	int mode;
+	union
+	{
+		nvec3 color;
+		struct
+		{
+			nvec2i origin, delta;
+			nvec3 color0, color1;
+		};
+	};
 } ng_paintbrush;
 
 // Geometry and shape of the next draw
@@ -125,13 +139,26 @@ void ng_painter_destroy(ng_paintctx* ctx)
 	free(data);
 }
 
-
-// Painting commands //
-void ng_painter_setcolor(ng_paintctx* ctx, float r, float g, float b)
+void ng_painter_set_color(ng_paintctx* ctx, float r, float g, float b)
 {
 	ng_paintdata* data = ctx;
+	data->brush.mode = NG_PAINT_BRUSH_SOLID;
 	data->brush.color = (nvec3){r,g,b};
 }
+void ng_painter_set_gradient(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec3 color0, nvec3 color1)
+{
+	ng_paintdata* data = ctx;
+	data->brush.mode = NG_PAINT_BRUSH_GRADIENT;
+	data->brush.origin = p0;
+	data->brush.delta = ng_subv2i(p1, p0);
+	data->brush.color0 = color0;
+	data->brush.color1 = color1;
+
+
+}
+
+
+// Painting commands //
 void ng_painter_rect(ng_paintctx* ctx, int x, int y, int width, int height)
 {
 	ng_paintdata* data = ctx;
@@ -174,6 +201,39 @@ void ng_painter_tri(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2)
 
 
 // Geometry Building //
+static nvec3 ng_brush_vtx_color_(ng_paintbrush* brush, nvec2i position)
+{
+	nvec3 color = { 0,0,0 };
+	switch (brush->mode)
+	{
+	case NG_PAINT_BRUSH_SOLID:
+	{
+		color = brush->color;
+		break;
+	}
+	case NG_PAINT_BRUSH_GRADIENT:
+	{
+		float bias = ng_dotv2i(ng_subv2i(position, brush->origin), brush->delta) / (float)ng_dotv2i(brush->delta, brush->delta);
+		color = ng_addv3(ng_scalev3(brush->color0, 1.0f - bias), ng_scalev3(brush->color1, bias));
+		break;
+	}
+
+	default:
+		break;
+	}
+
+	return color;
+}
+
+static void ng_brush_paint_vertices_(ng_paintbrush* brush, ng_vertex* v, int count)
+{
+	for (int i = 0; i < count; i++)
+	{
+		nvec3 p = v[i].pos;
+		v[i].color = ng_brush_vtx_color_(brush, (nvec2i){ p.x, p.y });
+	}
+}
+
 ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 {
 	ng_paintdata* data = ctx;
@@ -194,6 +254,7 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 		for(int i = 0; i < n->used; i++)
 		{
 			ng_paintcmd* cmd = ng_ustack_node_at(&data->cmds, n, i);
+			ng_paintbrush* brush = &cmd->brush;
 
 			// Build vbo & ibo based on type
 			switch (cmd->type)
@@ -204,11 +265,13 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 				ng_idxbuf_push_tri(&ib, i);
 
 				ng_vertex a[] = {
-					{{cmd->tri[0].x, cmd->tri[0].y, z}, cmd->brush.color, {0,0}},
-					{{cmd->tri[1].x, cmd->tri[1].y, z}, cmd->brush.color, {0,0}},
-					{{cmd->tri[2].x, cmd->tri[2].y, z}, cmd->brush.color, {0,0}},
+					{{cmd->tri[0].x, cmd->tri[0].y, z}, {0,0,0}, {0,0}},
+					{{cmd->tri[1].x, cmd->tri[1].y, z}, {0,0,0}, {0,0}},
+					{{cmd->tri[2].x, cmd->tri[2].y, z}, {0,0,0}, {0,0}},
 				};
-				ng_vtxbuf_push_many(&vb, &a, 3);
+				ng_brush_paint_vertices_(brush, &a[0], 4);
+
+				ng_vtxbuf_push_many(&vb, &a[0], 3);
 				break;
 			}
 			case NG_PAINTCMD_RECT:
@@ -217,12 +280,14 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 				ng_idxbuf_push_quad(&ib, i);
 
 				ng_vertex a[] = {
-					{{cmd->rect[0].x,                  cmd->rect[0].y,                  z}, cmd->brush.color, {0,0}},
-					{{cmd->rect[0].x + cmd->rect[1].x, cmd->rect[0].y,                  z}, cmd->brush.color, {1,0}},
-					{{cmd->rect[0].x + cmd->rect[1].x, cmd->rect[0].y + cmd->rect[1].y, z}, cmd->brush.color, {1,1}},
-					{{cmd->rect[0].x,                  cmd->rect[0].y + cmd->rect[1].y, z}, cmd->brush.color, {0,1}},
+					{{cmd->rect[0].x,                  cmd->rect[0].y,                  z}, {0,0,0}, {0,0}},
+					{{cmd->rect[0].x + cmd->rect[1].x, cmd->rect[0].y,                  z}, {0,0,0}, {1,0}},
+					{{cmd->rect[0].x + cmd->rect[1].x, cmd->rect[0].y + cmd->rect[1].y, z}, {0,0,0}, {1,1}},
+					{{cmd->rect[0].x,                  cmd->rect[0].y + cmd->rect[1].y, z}, {0,0,0}, {0,1}},
 				};
-				ng_vtxbuf_push_many(&vb, &a, 4);
+				ng_brush_paint_vertices_(brush, &a[0], 4);
+
+				ng_vtxbuf_push_many(&vb, &a[0], 4);
 				break;
 			}
 			case NG_PAINTCMD_QUAD:
@@ -231,12 +296,14 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 				ng_idxbuf_push_quad(&ib, i);
 
 				ng_vertex a[] = {
-					{{cmd->quad[0].x, cmd->quad[0].y, z}, cmd->brush.color, {0,0}},
-					{{cmd->quad[1].x, cmd->quad[1].y, z}, cmd->brush.color, {1,0}},
-					{{cmd->quad[2].x, cmd->quad[2].y, z}, cmd->brush.color, {1,1}},
-					{{cmd->quad[3].x, cmd->quad[3].y, z}, cmd->brush.color, {0,1}},
+					{{cmd->quad[0].x, cmd->quad[0].y, z}, {0,0,0}, {0,0}},
+					{{cmd->quad[1].x, cmd->quad[1].y, z}, {0,0,0}, {1,0}},
+					{{cmd->quad[2].x, cmd->quad[2].y, z}, {0,0,0}, {1,1}},
+					{{cmd->quad[3].x, cmd->quad[3].y, z}, {0,0,0}, {0,1}},
 				};
-				ng_vtxbuf_push_many(&vb, &a, 4);
+				ng_brush_paint_vertices_(brush, &a[0], 4);
+
+				ng_vtxbuf_push_many(&vb, &a[0], 4);
 				break;
 			}
 			}
