@@ -9,3 +9,6 @@ thirdparty/win/
 cmake-build-*
 .idea
 G*
+
+.cache
+compile_commands.json

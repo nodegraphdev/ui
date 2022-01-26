@@ -180,4 +180,5 @@ void ng_reset_props()
 		free(prop);
 		prop = previous;
 	}
+	ng_recent_prop = NULL;
 }

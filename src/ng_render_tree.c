@@ -222,4 +222,7 @@ void ng_commit()
 	ng_current_container->render_object.paint(size, data);
 
 	ng_free_container_(ng_current_container);
+	ng_current_container->first_child = ng_current_container->last_child = NULL;
+	ng_current_container->num_children = 0;
+	ng_current_container->render_object.data = NULL;
 }
