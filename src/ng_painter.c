@@ -214,6 +214,11 @@ static nvec3 ng_brush_vtx_color_(ng_paintbrush* brush, nvec2i position)
 	case NG_PAINT_BRUSH_GRADIENT:
 	{
 		float bias = ng_dotv2i(ng_subv2i(position, brush->origin), brush->delta) / (float)ng_dotv2i(brush->delta, brush->delta);
+		if (bias < 0.0f)
+			bias = 0.0f;
+		else if (bias > 1.0f)
+			bias = 1.0f;
+
 		color = ng_addv3(ng_scalev3(brush->color0, 1.0f - bias), ng_scalev3(brush->color1, bias));
 		break;
 	}
