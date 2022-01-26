@@ -118,7 +118,7 @@ ng_paintctx* ng_painter_create()
 
 	return data;
 }
-void ng_painter_free(ng_paintctx* ctx)
+void ng_painter_destroy(ng_paintctx* ctx)
 {
 	ng_paintdata* data = ctx;
 	ng_ustack_free(&data->cmds);
@@ -257,11 +257,24 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 	draw->count = ib.used;
 	draw->shader = ng_painter_default_shader;
 
+	ng_vtxbuf_free(&vb);
+	ng_idxbuf_free(&ib);
+
 	return draw;
 }
 
 
 // Paint drawing //
+
+void ng_painter_draw_destroy(ng_paintdraw* draw)
+{
+	ng_paintdrawdata* data = draw;
+
+	ng_render_destroy_ibo(data->ibo);
+	ng_render_destroy_vbo(data->vbo);
+	free(draw);
+}
+
 void ng_painter_draw(ng_paintdraw* draw)
 {
 	ng_paintdrawdata* data = draw;

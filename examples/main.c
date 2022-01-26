@@ -50,8 +50,10 @@ void test_text_paint(nvec2i size, void *d)
 	ng_painter_rect(ctx, data->width+1, data->width+1, 5, 5);
 
 	ng_paintdraw *draw = ng_painter_build(ctx);
-	
+	ng_painter_destroy(ctx);
+
 	ng_painter_draw_at(draw, (nvec3){0, 0, 0});
+	ng_painter_draw_destroy(draw);
 }
 
 void test_container()
