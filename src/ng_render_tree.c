@@ -1,4 +1,5 @@
 #include <ngui.h>
+#include "ng_properties.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,26 +10,34 @@ enum
 	NG_LEAF,
 };
 
-struct ng_render_object
+struct ng_render_base
 {
 	int type;
 
 	struct ng_container *parent;
-	struct ng_render_object	*sibling;
+	struct ng_render_base *sibling;
 
 	ng_size_func *size;
 	ng_paint_func *paint;
 	void *data;
 };
 
+struct ng_render_object
+{
+	struct ng_render_base base;
+	struct ng_retained_prop props[];
+};
+
 struct ng_container
 {
-	struct ng_render_object render_object;
+	struct ng_render_base base;
 
-	struct ng_render_object *first_child,
+	struct ng_render_base *first_child,
 		*last_child;
 
 	int num_children;
+
+	struct ng_retained_prop props[];
 };
 
 static struct ng_container *ng_current_container = NULL;
@@ -53,7 +62,7 @@ void ng_render_tree_init_()
 {
 	struct ng_container *root_container = calloc(1, sizeof(struct ng_container));
 
-	struct ng_render_object *ro = &root_container->render_object;
+	struct ng_render_base *ro = &root_container->base;
 	ro->data = NULL;
 	ro->paint = ng_root_container_paint;
 	ro->size = ng_root_container_size;
@@ -68,12 +77,12 @@ int ng_num_children()
 	return ng_current_container->num_children;
 }
 
-static struct ng_render_object *ng_nth_child_(int index)
+static struct ng_render_base *ng_nth_child_(int index)
 {
 	if (index >= ng_num_children())
 		return NULL;
 
-	struct ng_render_object *child = ng_current_container->first_child;
+	struct ng_render_base *child = ng_current_container->first_child;
 
 	// This can be optimized later to make sequential access faster
 	for (int i = 0; i < index; i++)
@@ -86,7 +95,7 @@ static struct ng_render_object *ng_nth_child_(int index)
 
 nvec2i ng_size_child(int index, nvec2i max)
 {
-	struct ng_render_object *child = ng_nth_child_(index);
+	struct ng_render_base *child = ng_nth_child_(index);
 
 	if (!child)
 		return nvec2i_zero_;
@@ -110,7 +119,7 @@ nvec2i ng_size_child(int index, nvec2i max)
 
 void ng_paint_child(int index, nvec2i size)
 {
-	struct ng_render_object *child = ng_nth_child_(index);
+	struct ng_render_base *child = ng_nth_child_(index);
 
 	if (!child)
 		return;
@@ -131,7 +140,7 @@ void ng_paint_child(int index, nvec2i size)
 	}
 }
 
-void ng_init_render_object_(struct ng_render_object *object,
+void ng_init_render_object_(struct ng_render_base *object,
 							ng_paint_func *paint, ng_size_func *size,
 							void *data)
 {
@@ -157,26 +166,30 @@ void ng_init_render_object_(struct ng_render_object *object,
 
 void ng_add_render_object(ng_size_func *size, ng_paint_func *paint, void *data)
 {
-	struct ng_render_object *object = calloc(1, sizeof(struct ng_render_object));
+	struct ng_render_object *object = calloc(1, sizeof(struct ng_render_object) +
+		sizeof(struct ng_retained_prop) * ng_num_retained_props_());
 
-	ng_init_render_object_(object, paint, size, data);
+	ng_init_render_object_(&object->base, paint, size, data);
+	ng_populate_retained_(object->props);
 }
 
 void ng_begin_container(ng_size_func *size, ng_paint_func *paint, void *data)
 {
-	struct ng_container *container = calloc(1, sizeof(struct ng_container));
+	struct ng_container *container = calloc(1, sizeof(struct ng_container) +
+		sizeof(struct ng_retained_prop) * ng_num_retained_props_());
 
-	ng_init_render_object_(&container->render_object, paint, size, data);
-	container->render_object.type = NG_CONTAINER;
+	ng_init_render_object_(&container->base, paint, size, data);
+	container->base.type = NG_CONTAINER;
+	ng_populate_retained_(container->props);
 
 	ng_current_container = container;
 }
 
 void ng_end()
 {
-	if (ng_current_container->render_object.parent)
+	if (ng_current_container->base.parent)
 	{
-		ng_current_container = ng_current_container->render_object.parent;
+		ng_current_container = ng_current_container->base.parent;
 	}
 	else
 	{
@@ -184,11 +197,11 @@ void ng_end()
 	}
 }
 
-static void ng_free_render_object_(struct ng_render_object *ro);
+static void ng_free_render_object_(struct ng_render_base *ro);
 
 static void ng_free_container_(struct ng_container *c)
 {
-	struct ng_render_object *child = c->first_child,
+	struct ng_render_base *child = c->first_child,
 		*next;
 
 	for (int i = 0; i < c->num_children; i++)
@@ -199,7 +212,7 @@ static void ng_free_container_(struct ng_container *c)
 	}
 }
 
-static void ng_free_render_object_(struct ng_render_object *ro)
+static void ng_free_render_object_(struct ng_render_base *ro)
 {
 	if (ro->type == NG_CONTAINER)
 		ng_free_container_((struct ng_container *)ro);
@@ -216,13 +229,13 @@ void ng_commit()
 
 	// TODO: hard coded
 	nvec2i size = {640, 480};
-	void *data = ng_current_container->render_object.data;
+	void *data = ng_current_container->base.data;
 
-	size = ng_current_container->render_object.size(size, data);
-	ng_current_container->render_object.paint(size, data);
+	size = ng_current_container->base.size(size, data);
+	ng_current_container->base.paint(size, data);
 
 	ng_free_container_(ng_current_container);
 	ng_current_container->first_child = ng_current_container->last_child = NULL;
 	ng_current_container->num_children = 0;
-	ng_current_container->render_object.data = NULL;
+	ng_current_container->base.data = NULL;
 }

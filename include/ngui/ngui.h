@@ -14,6 +14,11 @@ enum ng_prop_type
     NG_PROP_STRING
 };
 
+enum ng_prop_flag
+{
+	NG_PROP_IMPLICIT_RETAIN = 1
+};
+
 int ng_init();
 void ng_shutdown();
 int ng_open();
@@ -38,7 +43,7 @@ nvec2i ng_size_child(int index, nvec2i max);
 void ng_paint_child(int index, nvec2i size);
 
 /* Properties API */
-void ng_register_prop(char *key, int type);
+void ng_register_prop(char *key, int type, int flags);
 void ng_prop(char *key, ...);
 void ng_props(char *key, ...);
 
@@ -52,3 +57,7 @@ void ng_reset_props();
 // TODO: implement
 // void ng_save_props();
 // void ng_restore_props();
+
+
+/* Containers */
+void ng_flex_begin();

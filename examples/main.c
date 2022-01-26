@@ -98,10 +98,15 @@ int main()
 	ng_init();
 	printf("Hello!");
 
+	ng_register_prop("test-prefix", NG_PROP_STRING, 0);
+
+
+	/* ng_paintctx*	ng_init();
+	printf("Hello!");
+
 	ng_register_prop("test-prefix", NG_PROP_STRING);
 
-
-	/* ng_paintctx* ctx = ng_painter_create(); */
+ ctx = ng_painter_create(); */
 	/* ng_painter_setcolor(ctx, 0.5, 0.5, 0.5); */
 	/* ng_painter_rect(ctx, 0, 0, 100, 100); */
 	/* ng_painter_setcolor(ctx, 0.75, 0.75, 0.75); */

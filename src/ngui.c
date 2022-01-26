@@ -1,12 +1,14 @@
 #include "ngui.h"
 #include "ng_render.h"
 #include "ng_shader.h"
+#include "ng_properties.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 
 // don't want this to be visible to the user
+// TODO: Throw these in private headers instead
 extern void ng_render_tree_init_();
 extern void ng_painter_init_();
 extern void ng_painter_shutdown_();
@@ -40,6 +42,7 @@ int ng_init()
 	ng_render_tree_init_();
 	ng_shader_init();
 	ng_painter_init_();
+	ng_properties_init_();
 
 
 	// Background color and clear depth

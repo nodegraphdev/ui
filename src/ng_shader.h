@@ -16,3 +16,5 @@ void ng_shader_destroy(ng_shader* shader);
 
 void ng_shader_bind(ng_shader* shader);
 void ng_shader_set(int uniform, void* data);
+
+void ng_shader_init();
