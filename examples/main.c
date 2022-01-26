@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ngui/ngui.h>
+#include <ngui/ng_painter.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
 
 nvec2i test_size(nvec2i min, void *data)
 {
@@ -74,6 +78,30 @@ int main()
 	ng_end();
 
 	ng_commit();
+
+
+	ng_paintctx* ctx = ng_painter_create();
+	ng_painter_setcolor(ctx, 0.5, 0.5, 0.5);
+	ng_painter_rect(ctx, 0, 0, 100, 100);
+	ng_painter_setcolor(ctx, 0.75, 0.75, 0.75);
+	ng_painter_rect(ctx, 20, 20, 100, 100);
+
+	ng_paintdraw* draw = ng_painter_build(ctx);
+
+
+	while (ng_open())
+	{
+		ng_begin_frame();
+
+		
+		ng_painter_draw_at(draw, (nvec3){0,0,0});
+
+		ng_painter_draw_at(draw, (nvec3){ 600.0f * (0.5 + 0.5 * cos(clock() / (float)CLOCKS_PER_SEC)), 200.0f, 0.0f });
+
+		ng_end_frame();
+	}
+
+	ng_shutdown();
 
 	return 0;
 }

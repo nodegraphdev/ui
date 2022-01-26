@@ -15,6 +15,11 @@ enum ng_prop_type
 };
 
 int ng_init();
+void ng_shutdown();
+int ng_open();
+void ng_begin_frame();
+void ng_end_frame();
+
 
 /* Data must be freeable with free() */
 /* TODO: destructor function */
