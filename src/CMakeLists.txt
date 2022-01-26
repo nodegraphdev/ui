@@ -4,6 +4,8 @@ set( SOURCES
 	ng_math.c
 	ng_render_tree.c
 	ng_properties.c
+	ng_ustack.h
+	ng_ustack.c
 )
 
 set( HEADERS
