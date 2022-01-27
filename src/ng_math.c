@@ -1,11 +1,6 @@
 #include "ng_math.h"
 #include <math.h>
 
-// Nonstandard?
-#ifndef M_PI
-#define M_PI            3.14159265358979323846
-#endif
-
 
 // Vector 2 functions
 nvec2 ng_addv2(nvec2 a, nvec2 b)
@@ -415,7 +410,7 @@ void ng_xyzRotation4x4(nmat4x4* out, float x, float y, float z)
 // Camera functions //
 void ng_perspective4x4(nmat4x4* out, float fov, float near, float far, float aspect)
 {
-    float s = 1/tan((fov/2)*(M_PI/180));
+    float s = 1/tan((fov/2)*(NG_PI/180));
 
     *out = (nmat4x4){
     {s * aspect, 0,                      0,  0},

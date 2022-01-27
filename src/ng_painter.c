@@ -6,6 +6,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+
+
+#define NG_PAINTER_OVAL_SEG_COUNT 12
 
 enum
 {
@@ -18,6 +22,7 @@ enum
 	NG_PAINTCMD_TRI,
 	NG_PAINTCMD_RECT,
 	NG_PAINTCMD_QUAD,
+	NG_PAINTCMD_OVAL,
 };
 
 // Current visual state of the next draw
@@ -45,6 +50,12 @@ typedef struct ng_paintcmd
 		nvec2i quad[4];
 		nvec2i rect[2];
 		nvec2i tri[3];
+
+		struct
+		{
+			nvec2i center;
+			float radius_x, radius_y;
+		} circle;
 	};
 } ng_paintcmd;
 
@@ -208,6 +219,24 @@ void ng_painter_tri(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2)
 	ng_painter_submit_(data, &cmd);
 }
 
+void ng_painter_oval(ng_paintctx* ctx, nvec2i center, float radius_x, float radius_y)
+{
+	ng_paintdata* data = ctx;
+	data->vertexestimate += NG_PAINTER_OVAL_SEG_COUNT;
+	data->indexestimate += (NG_PAINTER_OVAL_SEG_COUNT-2)*3;
+
+	ng_paintcmd cmd;
+	cmd.type = NG_PAINTCMD_OVAL;
+	cmd.circle.center = center;
+	cmd.circle.radius_x = radius_x;
+	cmd.circle.radius_y = radius_y;
+	ng_painter_submit_(data, &cmd);
+}
+void ng_painter_circle(ng_paintctx* ctx, nvec2i center, float radius)
+{
+	ng_painter_oval(ctx, center, radius, radius);
+}
+
 
 // Geometry Building //
 static nvec3 ng_brush_vtx_color_(ng_paintbrush* brush, nvec2i position)
@@ -318,6 +347,29 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 				ng_brush_paint_vertices_(brush, &a[0], 4);
 
 				ng_vtxbuf_push_many(&vb, &a[0], 4);
+				break;
+			}
+			case NG_PAINTCMD_OVAL:
+			{
+				unsigned int i = vb.used;
+				ng_idxbuf_push_convexpoly(&ib, i, NG_PAINTER_OVAL_SEG_COUNT);
+
+				ng_vertex a[NG_PAINTER_OVAL_SEG_COUNT];
+				for (int i = 0; i < NG_PAINTER_OVAL_SEG_COUNT; i++)
+				{
+					float angle = i / (float)NG_PAINTER_OVAL_SEG_COUNT * NG_PI * 2.0f;
+					ng_vertex* v = &a[i];
+					v->pos = (nvec3){ 
+						cmd->circle.center.x + cmd->circle.radius_x * cosf(angle),
+						cmd->circle.center.y + cmd->circle.radius_y * sinf(angle),
+						z 
+					};
+					v->uv  = (nvec2){ 0.5f * cosf(angle) + 0.5f, 0.5f * sinf(angle) + 0.5f, };
+				}
+
+				ng_brush_paint_vertices_(brush, &a[0], NG_PAINTER_OVAL_SEG_COUNT);
+
+				ng_vtxbuf_push_many(&vb, &a[0], NG_PAINTER_OVAL_SEG_COUNT);
 				break;
 			}
 			}

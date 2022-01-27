@@ -63,6 +63,7 @@ void ng_idxbuf_push(ng_idxbuf* b, unsigned short ele);
 void ng_idxbuf_push_many(ng_idxbuf* b, unsigned short* arr, unsigned int count);
 void ng_idxbuf_push_tri(ng_idxbuf* out, unsigned short start);
 void ng_idxbuf_push_quad(ng_idxbuf* out, unsigned short start);
+void ng_idxbuf_push_convexpoly(ng_idxbuf* b, unsigned short start, unsigned short count);
 
 // Resets the head back to start. Next push will be at element zero
 void ng_idxbuf_reset(ng_idxbuf* b);
@@ -70,11 +71,4 @@ void ng_idxbuf_reset(ng_idxbuf* b);
 void ng_idxbuf_view(unsigned short* arr, unsigned int size, ng_idxbuf* out);
 
 
-
-// Mesh assembling //
-
-// Allocates and fills an index buffer based on a vertex buffer and a pattern
-void ng_idxbuf_fill_tris(ng_idxbuf* out, const ng_vtxbuf* vb);
-void ng_idxbuf_fill_quads(ng_idxbuf* out, const ng_vtxbuf* vb);
-void ng_idxbuf_fill_convexpolygon(ng_idxbuf* out, const ng_vtxbuf* vb);
 

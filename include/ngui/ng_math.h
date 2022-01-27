@@ -1,5 +1,9 @@
 #pragma once
 
+
+#define NG_PI 3.14159265358979323846
+
+
 // Matrices are in Column-major!
 
 

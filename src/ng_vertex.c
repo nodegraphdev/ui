@@ -162,76 +162,16 @@ void ng_idxbuf_view(unsigned short* arr, unsigned int size, ng_idxbuf* out)
 // Mesh assembling //
 
 
-void ng_idxbuf_fill_tris(ng_idxbuf* out, const ng_vtxbuf* vb)
-{
-    if (vb->used < 3)
-        return;
-
-    // Round to last complete tri
-    unsigned int idxCount = vb->used / 3 * 3;
-
-    ng_idxbuf_alloc(out, idxCount);
-
-    out->used = idxCount;
-    for (unsigned int i = 0; i < idxCount; i++)
-    {
-        out->buf[i] = i;
-    }
-}
-
-void ng_idxbuf_fill_quads(ng_idxbuf* out, const ng_vtxbuf* vb)
-{
-    if (vb->used < 4)
-        return;
-
-    // Round to last complete quad
-    unsigned int idxCount = vb->used / 4 * 6;
-
-    ng_idxbuf_alloc(out, idxCount);
-
-    out->used = idxCount;
-    for (unsigned int i = 0; i < idxCount; i += 6)
-    {
-        out->buf[i+0] = i+0;
-        out->buf[i+1] = i+1;
-        out->buf[i+2] = i+2;
-
-        out->buf[i+3] = i+2;
-        out->buf[i+4] = i+3;
-        out->buf[i+5] = i+0;
-    }
-}
-
-void ng_idxbuf_fill_convexpolygon(ng_idxbuf* out, const ng_vtxbuf* vb)
-{
-    if (vb->used < 3)
-        return;
-
-    // Whole thing is a big polygon
-    unsigned int idxCount = (vb->used - 2) * 3;
-
-    ng_idxbuf_alloc(out, idxCount);
-
-    out->used = idxCount;
-    for (unsigned int i = 1; i < idxCount; i++)
-    {
-        out->buf[i + 0] = 0;
-        out->buf[i + 1] = i;
-        out->buf[i + 2] = i + 1;
-    }
-}
-
-
-void ng_idxbuf_push_tri(ng_idxbuf* out, unsigned short start)
+void ng_idxbuf_push_tri(ng_idxbuf* b, unsigned short start)
 {
     unsigned short a[] = { 
         start + 0, 
         start + 1, 
         start + 2 
     };
-    ng_idxbuf_push_many(out, &a[0], 3);
+    ng_idxbuf_push_many(b, &a[0], 3);
 }
-void ng_idxbuf_push_quad(ng_idxbuf* out, unsigned short start)
+void ng_idxbuf_push_quad(ng_idxbuf* b, unsigned short start)
 {
     unsigned short a[] = { 
         start + 0,
@@ -242,5 +182,22 @@ void ng_idxbuf_push_quad(ng_idxbuf* out, unsigned short start)
         start + 3,
         start + 0
     };
-    ng_idxbuf_push_many(out, &a[0], 6);
+    ng_idxbuf_push_many(b, &a[0], 6);
+}
+
+
+void ng_idxbuf_push_convexpoly(ng_idxbuf* b, unsigned short start, unsigned short count)
+{
+    int idxCount = (count - 2) * 3;
+
+    unsigned short* f = b->buf + b->used;
+    b->used += idxCount;
+
+    for (unsigned int i = 1; i < count - 1; i++)
+    {
+        f[0] = start;
+        f[1] = start + i;
+        f[2] = start + i + 1;
+        f += 3;
+    }
 }

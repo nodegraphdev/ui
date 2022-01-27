@@ -21,6 +21,8 @@ void ng_painter_set_gradient(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec3 color
 void ng_painter_rect(ng_paintctx* ctx, int x, int y, int width, int height);
 void ng_painter_quad(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2, nvec2i p3);
 void ng_painter_tri(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2);
+void ng_painter_oval(ng_paintctx* ctx, nvec2i center, float radius_x, float radius_y);
+void ng_painter_circle(ng_paintctx* ctx, nvec2i center, float radius);
 
 
 // Temporary
