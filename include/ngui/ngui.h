@@ -39,8 +39,14 @@ void ng_commit();
 /* these functions must only be called during the size or paint
  * functions of a container. */
 int ng_num_children();
-nvec2i ng_size_child(int index, nvec2i max);
-void ng_paint_child(int index, nvec2i size);
+nvec2i ng_child_size(int index, nvec2i max);
+void ng_child_paint(int index, nvec2i size);
+
+/* these functions get retained properties from a child */
+int ng_child_get_propi(int index, char *key);
+double ng_child_get_propf(int index, char *key);
+char *ng_child_get_props(int index, char *key);
+void *ng_child_get_propp(int index, char *key);
 
 /* Properties API */
 void ng_register_prop(char *key, int type, int flags);

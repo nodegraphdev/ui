@@ -18,7 +18,7 @@ void test_container_paint(nvec2i size, void *data)
 
 	for (int i = 0; i < ng_num_children(); i++)
 	{
-		ng_paint_child(i, ng_size_child(i, size));
+		ng_child_paint(i, ng_child_size(i, size));
 	}
 
 	// printf("End test_container\n");
@@ -81,10 +81,12 @@ void draw_ui()
 		test_text("A", 100);
 		test_text("B", 80);
 
-		test_container();
+		ng_flex_begin();
 		{
 			ng_prop("test-prefix", "2-");
+			ng_prop("flex", 1);
 			test_text("C", 70);
+			ng_prop("flex", 0);
 			test_text("D", 60);
 		}
 		ng_end();

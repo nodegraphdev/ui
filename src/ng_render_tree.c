@@ -53,8 +53,8 @@ void ng_root_container_paint(nvec2i size, void *data)
 {
 	if (ng_num_children() > 0)
 	{
-		nvec2i desired_size = ng_size_child(0, size);
-		ng_paint_child(0, desired_size);
+		nvec2i desired_size = ng_child_size(0, size);
+		ng_child_paint(0, desired_size);
 	}
 }
 
@@ -93,7 +93,56 @@ static struct ng_render_base *ng_nth_child_(int index)
 	return child;
 }
 
-nvec2i ng_size_child(int index, nvec2i max)
+struct ng_retained_prop *ng_get_render_object_prop_(struct ng_render_base *base, char *key)
+{
+	if (base->type == NG_CONTAINER)
+	{
+		return ng_get_retained_prop_(((struct ng_container *)base)->props, key);
+	}
+	else
+	{
+		return ng_get_retained_prop_(((struct ng_render_object *)base)->props, key);
+	}
+}
+
+int ng_child_get_propi(int index, char *key)
+{
+	struct ng_retained_prop *prop = ng_get_render_object_prop_(ng_nth_child_(index), key);
+	if (prop)
+		return prop->ival;
+	else
+		return 0;
+}
+
+double ng_child_get_propf(int index, char *key)
+{
+	struct ng_retained_prop *prop = ng_get_render_object_prop_(ng_nth_child_(index), key);
+	if (prop)
+		return prop->dval;
+	else
+		return 0;
+}
+
+char *ng_child_get_props(int index, char *key)
+{
+
+	struct ng_retained_prop *prop = ng_get_render_object_prop_(ng_nth_child_(index), key);
+	if (prop)
+		return prop->sval;
+	else
+		return "";
+}
+
+void *ng_child_get_propp(int index, char *key)
+{
+	struct ng_retained_prop *prop = ng_get_render_object_prop_(ng_nth_child_(index), key);
+	if (prop)
+		return prop->pval;
+	else
+		return 0;
+}
+
+nvec2i ng_child_size(int index, nvec2i max)
 {
 	struct ng_render_base *child = ng_nth_child_(index);
 
@@ -117,7 +166,7 @@ nvec2i ng_size_child(int index, nvec2i max)
 	return size;
 }
 
-void ng_paint_child(int index, nvec2i size)
+void ng_child_paint(int index, nvec2i size)
 {
 	struct ng_render_base *child = ng_nth_child_(index);
 

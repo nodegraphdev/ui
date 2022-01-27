@@ -36,3 +36,4 @@ int ng_num_retained_props_();
 void ng_populate_retained_(struct ng_retained_prop *props);
 struct ng_prop *ng_get_prop_(char *key);
 void ng_properties_init_();
+struct ng_retained_prop *ng_get_retained_prop_(struct ng_retained_prop *ret, char *key);

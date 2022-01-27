@@ -146,6 +146,23 @@ struct ng_prop *ng_get_prop_(char *key)
 	return NULL;
 }
 
+struct ng_retained_prop *ng_get_retained_prop_(struct ng_retained_prop *ret, char *key)
+{
+	for (int i = 0; i < ng_num_retained_props_(); i++)
+	{
+		if (ret[i].key[0] == 0)
+		{
+			return NULL;
+		}
+		else if (strcmp(key, ret[i].key) == 0)
+		{
+			return &ret[i];
+		}
+	}
+
+	return NULL;
+}
+
 int ng_get_propi(char *key)
 {
 	struct ng_prop *prop = ng_get_prop_(key);
@@ -196,5 +213,10 @@ void ng_reset_props()
 void ng_properties_init_()
 {
 	// Register some default properties
+
+	// Layout (retained)
 	ng_register_prop("flex", NG_PROP_INT, NG_PROP_IMPLICIT_RETAIN);
+
+	// Basic
+	ng_register_prop("color", NG_PROP_STRING, 0);
 }
