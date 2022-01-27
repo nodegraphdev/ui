@@ -99,7 +99,7 @@ static const char* ng_painter_fragmentshader =
 
 
 static ng_shader* ng_painter_default_shader = 0;
-
+static int ng_painter_global_z = 0;
 
 static void ng_painter_submit_(ng_paintdata* data, ng_paintcmd* cmd)
 {
@@ -360,8 +360,22 @@ void ng_painter_draw_at(ng_paintdraw* draw, nvec3 origin)
 	// This should get glommed up into some kind of transform helper later on
 	nmat4x4 model;
 	ng_identity4x4(&model);
-	model.d = (nvec4){ origin.x, origin.y, origin.z, 1.0f };
+	model.d = (nvec4){ origin.x, origin.y, origin.z + ng_painter_global_z, 1.0f };
 	ng_shader_set(NG_SHADERPARAM_MODEL, &model);
 
 	ng_painter_draw(draw);
+}
+
+// Temporary
+void ng_painter_push_z()
+{
+	ng_painter_global_z++;
+}
+void ng_painter_pop_z()
+{
+	ng_painter_global_z--;
+}
+void ng_painter_set_z(int z)
+{
+	ng_painter_global_z = z;
 }

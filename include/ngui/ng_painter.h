@@ -22,3 +22,8 @@ void ng_painter_rect(ng_paintctx* ctx, int x, int y, int width, int height);
 void ng_painter_quad(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2, nvec2i p3);
 void ng_painter_tri(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2);
 
+
+// Temporary
+void ng_painter_push_z();
+void ng_painter_pop_z();
+void ng_painter_set_z(int z);
