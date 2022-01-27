@@ -1,5 +1,6 @@
 #include <ngui.h>
 #include "ng_properties.h"
+#include "ng_window.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -276,8 +277,7 @@ void ng_commit()
 {
 	ng_current_container = ng_root_container;
 
-	// TODO: hard coded
-	nvec2i size = {640, 480};
+	nvec2i size = ng_window_size_();
 	void *data = ng_current_container->base.data;
 
 	size = ng_current_container->base.size(size, data);

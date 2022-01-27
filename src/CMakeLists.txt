@@ -16,7 +16,7 @@ set( SOURCES
 	ng_vertex.h
 	ng_vertex.c
 	ng_painter.c
-		ng_flex.c ng_properties.h)
+		ng_flex.c ng_properties.h ng_window.h)
 
 # Public headers kept in /include/ngui/
 set( HEADERS_PUBLIC

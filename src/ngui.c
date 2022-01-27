@@ -2,6 +2,7 @@
 #include "ng_render.h"
 #include "ng_shader.h"
 #include "ng_properties.h"
+#include "ng_window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -91,4 +92,11 @@ void ng_begin_frame()
 void ng_end_frame()
 {
 	glfwSwapBuffers(ng_window);
+}
+
+nvec2i ng_window_size_()
+{
+	int w, h;
+	glfwGetWindowSize(ng_window, &w, &h);
+	return (nvec2i){w, h};
 }
