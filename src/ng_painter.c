@@ -99,7 +99,7 @@ static const char* ng_painter_fragmentshader =
 
 
 static ng_shader* ng_painter_default_shader = 0;
-static int ng_painter_global_z = 0;
+static ng_ustack ng_painter_origin_stack;
 
 static void ng_painter_submit_(ng_paintdata* data, ng_paintcmd* cmd)
 {
@@ -107,11 +107,20 @@ static void ng_painter_submit_(ng_paintdata* data, ng_paintcmd* cmd)
 	p->brush = data->brush;
 }
 
+static nvec3 ng_painter_get_origin_()
+{
+	nvec3* o = ng_ustack_last(&ng_painter_origin_stack);
+	if (o)
+		return *o;
+	return (nvec3){ 0, 0, 0 };
+}
+
 
 // Internal 
 void ng_painter_init_()
 {
 	ng_painter_default_shader = ng_shader_create(ng_painter_vertexshader, ng_painter_fragmentshader);
+	ng_ustack_alloc(&ng_painter_origin_stack, sizeof(nvec3));
 }
 void ng_painter_shutdown_()
 {
@@ -347,12 +356,26 @@ void ng_painter_draw_destroy(ng_paintdraw* draw)
 	free(draw);
 }
 
-void ng_painter_draw(ng_paintdraw* draw)
+static void ng_painter_draw_only_(ng_paintdraw* draw)
 {
 	ng_paintdrawdata* data = draw;
-
 	ng_shader_bind(data->shader);
 	ng_render_draw_mesh(data->vbo, data->ibo, data->start, data->count);
+}
+
+void ng_painter_draw(ng_paintdraw* draw)
+{
+	// This should get glommed up into some kind of transform helper later on
+	nmat4x4 model;
+	ng_identity4x4(&model);
+
+	*(nvec3*)&model.d = ng_painter_get_origin_();
+	model.d.w = 1.0f;
+
+	ng_shader_set(NG_SHADERPARAM_MODEL, &model);
+
+	// Draw it
+	ng_painter_draw_only_(draw);
 }
 
 void ng_painter_draw_at(ng_paintdraw* draw, nvec3 origin)
@@ -360,22 +383,32 @@ void ng_painter_draw_at(ng_paintdraw* draw, nvec3 origin)
 	// This should get glommed up into some kind of transform helper later on
 	nmat4x4 model;
 	ng_identity4x4(&model);
-	model.d = (nvec4){ origin.x, origin.y, origin.z + ng_painter_global_z, 1.0f };
+
+	*(nvec3*)&model.d = ng_addv3(origin, ng_painter_get_origin_());
+	model.d.w = 1.0f;
+
 	ng_shader_set(NG_SHADERPARAM_MODEL, &model);
 
-	ng_painter_draw(draw);
+	// Draw it
+	ng_painter_draw_only_(draw);
 }
 
 // Temporary
-void ng_painter_push_z()
+void ng_painter_push_origin(nvec2i v)
 {
-	ng_painter_global_z++;
+	nvec3 oldo = ng_painter_get_origin_();
+
+	nvec3 o = ng_addv3(oldo, (nvec3){ v.x, v.y, 1.0f });
+
+	ng_ustack_push(&ng_painter_origin_stack, &o);
 }
-void ng_painter_pop_z()
+
+void ng_painter_pop_origin()
 {
-	ng_painter_global_z--;
+	ng_ustack_pop(&ng_painter_origin_stack);
 }
-void ng_painter_set_z(int z)
+
+void ng_painter_set_origin(nvec3 v)
 {
-	ng_painter_global_z = z;
+	ng_ustack_push(&ng_painter_origin_stack, &v);
 }

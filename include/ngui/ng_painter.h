@@ -24,6 +24,6 @@ void ng_painter_tri(ng_paintctx* ctx, nvec2i p0, nvec2i p1, nvec2i p2);
 
 
 // Temporary
-void ng_painter_push_z();
-void ng_painter_pop_z();
-void ng_painter_set_z(int z);
+void ng_painter_push_origin(nvec2i v);
+void ng_painter_pop_origin();
+void ng_painter_set_origin(nvec3 v);
