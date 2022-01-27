@@ -12,10 +12,10 @@ enum
 
 struct ng_flex_child
 {
-	int cross_axis_start;
+	int perp_axis_start;
 	nvec2i min_size;
 	int flex;
-	int width;
+	int par_size;
 };
 
 struct ng_flex_data
@@ -24,9 +24,25 @@ struct ng_flex_data
 	struct ng_flex_child *children;
 };
 
-static int ng_flex_width_per_flex_(int width, int line_width, int row_flex_total)
+static int ng_flex_par_axis_(struct ng_flex_data *data, nvec2i size)
 {
-	int remaining_width = width - line_width;
+	if (data->flex_direction == NG_FLEX_ROW)
+		return size.x;
+	else
+		return size.y;
+}
+
+static int ng_flex_perp_axis_(struct ng_flex_data *data, nvec2i size)
+{
+	if (data->flex_direction == NG_FLEX_ROW)
+		return size.y;
+	else
+		return size.x;
+}
+
+static int ng_flex_width_per_flex_(int size_par, int cursor_par, int row_flex_total)
+{
+	int remaining_width = size_par - cursor_par;
 
 	int width_per_flex = 0;
 	if (row_flex_total)
@@ -39,54 +55,59 @@ static nvec2i ng_flex_size_(nvec2i max, void *d)
 {
 	struct ng_flex_data *data = d;
 
-	int width = max.x;
-	int line_width = 0;
-	int cursor_y = 0;
-	int max_height = 0;
+	// The max size parallel to the flex-direction
+	int size_par = ng_flex_par_axis_(data, max);
+
+	// "Cursor" position parallel to the flex-direction
+	int cursor_par = 0;
+	// "Cursor" position perpendicular to the flex-direction
+	int cursor_perp = 0;
+	// Max size of this row on the axis perpendicular to the flex-direction
+	int max_perp = 0;
+	// The sum of all "flex" properties in the current "row"
 	int row_flex_total = 0;
-	int line_starts_at = 0;
+	// The index of the first child on the current row
+	int row_starts_at = 0;
 
 	data->children = calloc(ng_num_children(), sizeof(struct ng_flex_child));
 
-	// TODO: respect flex-direction
-
+	// Child index
 	int i;
 
 	for (i = 0; i < ng_num_children(); i++)
 	{
 		nvec2i child_size = ng_child_size(i, (nvec2i){0, 0});
 
-		if (child_size.y > max_height)
-			max_height = child_size.y;
+		if (ng_flex_perp_axis_(data, child_size) > max_perp)
+			max_perp = ng_flex_perp_axis_(data, child_size);
 
-		int flex =  ng_child_get_propi(i, "flex");
+		int flex = ng_child_get_propi(i, "flex");
 		// printf("flex %d, total %d\n", flex, row_flex_total);
 
 		row_flex_total += flex;
 
-		data->children[i].cross_axis_start = cursor_y;
+		data->children[i].perp_axis_start = cursor_perp;
 		data->children[i].min_size = child_size;
 		data->children[i].flex = flex;
-		data->children[i].width = child_size.x;
+		data->children[i].par_size = ng_flex_par_axis_(data, child_size);
 
 		// If this doesn't fit on one line
-		if (line_width + child_size.x > width)
+		if (cursor_par + ng_flex_par_axis_(data, child_size) > size_par)
 		{
-			cursor_y += max_height;
-			max_height = 0;
-
+			cursor_perp += max_perp;
+			max_perp = 0;
 
 			// If there's already stuff on this line, move to next line. Otherwise,
 			// the widget has no choice but to fit in this line
-			if (line_width > 0)
+			if (cursor_par > 0)
 			{
 				// Turns out this element actually isn't on this line
 				row_flex_total -= flex;
-				int width_per_flex = ng_flex_width_per_flex_(width, line_width, row_flex_total);
+				int width_per_flex = ng_flex_width_per_flex_(size_par, cursor_par, row_flex_total);
 
-				for (int j = line_starts_at; j <= i; j++)
+				for (int j = row_starts_at; j <= i; j++)
 				{
-					data->children[j].width += data->children[j].flex * width_per_flex;
+					data->children[j].par_size += data->children[j].flex * width_per_flex;
 				}
 
 				// And then layout this item a second time (now on a new line)
@@ -95,56 +116,65 @@ static nvec2i ng_flex_size_(nvec2i max, void *d)
 			else
 			{
 				// too bad, must fit here anyway
-				data->children[i].width = width;
+				data->children[i].par_size = size_par;
 			}
 
 			row_flex_total = 0;
-			line_width = 0;
-			line_starts_at = i + 1;
+			cursor_par = 0;
+			row_starts_at = i + 1;
 		}
 		else
 		{
-			line_width += child_size.x;
+			cursor_par += ng_flex_par_axis_(data, child_size);
 		}
 	}
 
-	if (line_width > 0)
+	if (cursor_par > 0)
 	{
-		int width_per_flex = ng_flex_width_per_flex_(width, line_width, row_flex_total);
+		int width_per_flex = ng_flex_width_per_flex_(size_par, cursor_par, row_flex_total);
 
 		// TODO: factor out?
 
-		for (int j = line_starts_at; j < i; j++)
+		for (int j = row_starts_at; j < i; j++)
 		{
-			data->children[j].width += data->children[j].flex * width_per_flex;
+			data->children[j].par_size += data->children[j].flex * width_per_flex;
 		}
 	}
 
-	return (nvec2i){width, cursor_y + max_height};
+	return (nvec2i){size_par, cursor_perp + max_perp};
 }
 
 static void ng_flex_paint_(nvec2i size, void *d)
 {
 	struct ng_flex_data *data = d;
 
-	int current_y = 0;
-	int current_x = 0;
+	int current_perp = 0;
+	int current_par = 0;
 
 	for (int i = 0; i < ng_num_children(); i++)
 	{
 		struct ng_flex_child *child = &data->children[i];
 
-		if (child->cross_axis_start != current_y)
+		if (child->perp_axis_start != current_perp)
 		{
-			current_y = child->cross_axis_start;
-			current_x = 0;
+			current_perp = child->perp_axis_start;
+			current_par = 0;
 		}
 
-		ng_painter_push_origin((nvec2i){current_x, current_y});
-		ng_child_paint(i, (nvec2i){child->width, child->min_size.y});
+		if (data->flex_direction == NG_FLEX_ROW)
+		{
+			ng_painter_push_origin((nvec2i) {current_par, current_perp});
+			ng_child_paint(i, (nvec2i){child->par_size, child->min_size.y});
+		}
+		else
+		{
+			ng_painter_push_origin((nvec2i){current_perp, current_par});
+			ng_child_paint(i, (nvec2i){child->min_size.x, child->par_size});
+		}
+
 		ng_painter_pop_origin();
 
-		current_x += child->width;
+		current_par += child->par_size;
 	}
 
 	free(data->children);

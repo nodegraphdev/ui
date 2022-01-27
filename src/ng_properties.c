@@ -216,6 +216,7 @@ void ng_properties_init_()
 
 	// Layout (retained)
 	ng_register_prop("flex", NG_PROP_INT, NG_PROP_IMPLICIT_RETAIN);
+	ng_register_prop("flex-direction", NG_PROP_STRING, 0);
 
 	// Basic
 	ng_register_prop("color", NG_PROP_STRING, 0);

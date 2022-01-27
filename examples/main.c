@@ -61,6 +61,7 @@ void draw_ui()
 {
 	ng_reset_props();
 
+	ng_prop("flex-direction", "column");
 	ng_flex_begin();
 	{
 		test_widget();
@@ -70,7 +71,6 @@ void draw_ui()
 		ng_prop("flex", 1);
 		test_widget();
 		ng_prop("flex", 0);
-//		ng_prop("flex", 2);
 		test_widget();
 		test_widget();
 

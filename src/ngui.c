@@ -78,7 +78,7 @@ void ng_begin_frame()
 	ng_identity4x4(&model);
 	ng_identity4x4(&view);
 
-	// Set the camera to fit the window size. Top left (0,0) to bottom right (width, height)
+	// Set the camera to fit the window size. Top left (0,0) to bottom right (par_size, height)
 	ng_ortho4x4(&proj, 0, width, 0, height, -800, 800);
 
 	// Update parameters
