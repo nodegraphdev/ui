@@ -61,8 +61,8 @@ void *ng_get_propp(char *key);
 void ng_reset_props();
 
 // TODO: implement
-// void ng_save_props();
-// void ng_restore_props();
+void ng_save_props();
+void ng_restore_props();
 
 
 /* Containers */

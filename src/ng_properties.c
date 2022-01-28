@@ -221,3 +221,23 @@ void ng_properties_init_()
 	// Basic
 	ng_register_prop("color", NG_PROP_STRING, 0);
 }
+
+void ng_save_props()
+{
+	ng_recent_prop->save_point = 1;
+}
+
+void ng_restore_props()
+{
+	struct ng_prop *prop, *previous;
+
+	for (prop = ng_recent_prop; prop && !prop->save_point;)
+	{
+		previous = prop->previous;
+		free(prop);
+		prop = previous;
+	}
+
+	if (prop)
+		prop->save_point = 0;
+}

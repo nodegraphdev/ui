@@ -17,6 +17,7 @@ struct ng_retained_prop
 struct ng_prop
 {
 	struct ng_retained_prop retained;
+	int save_point;
 	struct ng_prop *previous;
 };
 
