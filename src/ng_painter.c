@@ -109,7 +109,7 @@ static nvec3 ng_painter_get_origin_()
 // Internal 
 void ng_painter_init_()
 {
-	ng_painter_default_shader = ng_shader_create(ng_painter_vertexshader, ng_painter_fragmentshader);
+	ng_painter_default_shader = ng_shader_create(ng_painter_vs, ng_painter_fs);
 	ng_ustack_alloc(&ng_painter_origin_stack, sizeof(nvec3));
 }
 void ng_painter_shutdown_()
@@ -334,10 +334,10 @@ ng_paintdraw* ng_painter_build(ng_paintctx* ctx)
 				ng_idxbuf_push_convexpoly(&ib, i, NG_PAINTER_OVAL_SEG_COUNT);
 
 				ng_vertex a[NG_PAINTER_OVAL_SEG_COUNT];
-				for (int i = 0; i < NG_PAINTER_OVAL_SEG_COUNT; i++)
+				for (int k = 0; k < NG_PAINTER_OVAL_SEG_COUNT; k++)
 				{
-					float angle = i / (float)NG_PAINTER_OVAL_SEG_COUNT * NG_PI * 2.0f;
-					ng_vertex* v = &a[i];
+					float angle = k / (float)NG_PAINTER_OVAL_SEG_COUNT * NG_PI * 2.0f;
+					ng_vertex* v = &a[k];
 					v->pos = (nvec3){ 
 						cmd->circle.center.x + cmd->circle.radius_x * cosf(angle),
 						cmd->circle.center.y + cmd->circle.radius_y * sinf(angle),

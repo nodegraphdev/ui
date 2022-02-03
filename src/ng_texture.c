@@ -62,7 +62,7 @@ ng_texture* ng_texture_create(enum NG_TEXTURE_FORMAT format, unsigned char* pixe
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // Look up the GL format
-    int* fmt = &ng_texture_format_lookup[format];
+    int* fmt = &ng_texture_format_lookup[format][0];
 
     // Put the image in the texture
     glTexImage2D(GL_TEXTURE_2D, 0, fmt[0], width, height, 0, fmt[1], fmt[2], pixels);
