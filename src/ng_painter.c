@@ -83,33 +83,12 @@ typedef struct ng_paintdrawdata
 } ng_paintdrawdata;
 
 
-// TODO: These two need to get moved elsewhere 
 // Default shaders for the painter
-static const char* ng_painter_vertexshader =
-"#version 330 core\n"
-"layout(location = 0) in vec3 a_pos;"
-"layout(location = 1) in vec3 a_color;"
-"layout(location = 2) in vec2 a_uv;"
-"uniform mat4 u_model;"
-"uniform mat4 u_view;"
-"uniform mat4 u_projection;"
-"out vec3 v_color;"
-"out vec4 v_worldpos;"
-"void main(){"
-"    v_color=a_color;"
-"    gl_Position = u_projection * u_view * u_model * vec4(a_pos.xyz, 1.0);"
-"}";
-static const char* ng_painter_fragmentshader =
-"#version 330 core\n"
-"precision lowp float;"
-"in vec3 v_color;"
-"out vec4 o_fragColor;"
-"void main() {"
-"    o_fragColor = vec4(v_color.xyz, 1.0);"
-"}";
+extern const unsigned char ng_painter_fs[];
+extern const unsigned char ng_painter_vs[];
 
 
-static ng_shader* ng_painter_default_shader = 0;
+ng_shader* ng_painter_default_shader = 0; 
 static ng_ustack ng_painter_origin_stack;
 
 static void ng_painter_submit_(ng_paintdata* data, ng_paintcmd* cmd)

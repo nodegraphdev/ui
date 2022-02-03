@@ -31,7 +31,12 @@ set( HEADERS_PUBLIC
 	ng_painter.h
 )
 
+set( SHADERS 
 
+	shaders/ng_painter.fs
+	shaders/ng_painter.vs
+
+)
 # Append the directory to our public files, otherwise CMake can't find them
 set(HEADERS_PUBLIC_PATH "")
 foreach(PUBLIC_FILE ${HEADERS_PUBLIC})
@@ -45,10 +50,20 @@ else()
 endif()
 
 
-add_library( ngui ${SOURCES} ${HEADERS_PUBLIC_PATH} )
+add_library( ngui ${SOURCES} ${HEADERS_PUBLIC_PATH})
 target_include_directories( ngui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( ngui ${GLFW_LIB_NAME} glad )
+target_link_libraries( ngui ${GLFW_LIB_NAME} glad ngui_shaders )
 
 if(UNIX)
 	target_link_libraries( ngui dl m )
 endif()
+
+
+# Shader Resource Library
+add_custom_command(
+	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c"
+    COMMAND rescompile ${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c ${SHADERS}
+    DEPENDS ${SHADERS}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+add_library( ngui_shaders STATIC ${SHADERS} "${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c")

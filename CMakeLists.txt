@@ -15,6 +15,8 @@ project( NGUI )
 # Thirdparty libraries
 add_subdirectory( thirdparty/glad )
 
+# Required for shaders
+add_subdirectory( rescompile )
 
 # NGUI Library
 add_subdirectory( src )
