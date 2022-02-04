@@ -62,7 +62,7 @@ endif()
 # Shader Resource Library
 add_custom_command(
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c"
-    COMMAND rescompile ${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c ${SHADERS}
+    COMMAND rescompile "${CMAKE_CURRENT_BINARY_DIR}/ng_all_shaders.c" ${SHADERS}
     DEPENDS ${SHADERS}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

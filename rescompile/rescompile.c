@@ -5,7 +5,6 @@
 //
 //
 // TODO:
-//   Handle quotation marks in arguments
 //   Prevent variable name overlap
 //   Maybe preprocess shaders for include?
 //
