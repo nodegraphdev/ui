@@ -42,6 +42,27 @@ echo =========== Copying GLFW ===========
 copy temp\glfwbuild\src\Release\glfw3.lib lib\glfw3.lib
 robocopy temp\glfw\include include /E
 
+echo ========= Building FreeType =========
+mkdir temp\freetype
+git clone -b VER-2-11-1 https://gitlab.freedesktop.org/freetype/freetype.git temp\freetype
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto cloneFail
+
+cmake temp\freetype -B temp\freetypebuild -D CMAKE_BUILD_TYPE=Release
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto cmakeFail
+
+cmake --build temp\freetypebuild --config Release
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto buildFail
+
+echo ========= Copying FreeType =========
+copy temp\freetypebuild\Release\freetype.lib lib\freetype.lib
+robocopy temp\freetype\include include /E
+
 echo ============ Cleaning up ============
 rmdir /S /Q temp
 

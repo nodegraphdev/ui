@@ -104,6 +104,7 @@ void ng_render_draw_mesh(ng_vbo vbo, ng_ibo ibo, unsigned int start, unsigned in
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(
 		0,                              // position 0
 		3,                              // three floats
@@ -128,6 +129,14 @@ void ng_render_draw_mesh(ng_vbo vbo, ng_ibo ibo, unsigned int start, unsigned in
 		sizeof(ng_vertex),             // stride
 		(void*)offsetof(ng_vertex, uv) // position within stride
 	);
+	glVertexAttribPointer(
+		3,                                // position 3
+		1,                                // one short
+		GL_FLOAT,                         // elements are shorts
+		GL_FALSE,                         //
+		sizeof(ng_vertex),                // stride
+		(void*)offsetof(ng_vertex, glyph) // position within stride
+	);
 
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo.ibo);
@@ -137,4 +146,5 @@ void ng_render_draw_mesh(ng_vbo vbo, ng_ibo ibo, unsigned int start, unsigned in
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 }

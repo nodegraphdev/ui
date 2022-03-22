@@ -14,6 +14,9 @@ typedef struct nvec2 {
 typedef struct nvec2i {
 	int x, y;
 } nvec2i;
+typedef struct nvec2s {
+	short x, y;
+} nvec2s;
 typedef struct nvec3 {
 	float x, y, z;
 } nvec3;
@@ -49,8 +52,14 @@ nvec2 ng_rotatev2(nvec2 a, float angle);
 // Vector 2 Integer //
 nvec2i ng_addv2i(nvec2i a, nvec2i b);
 nvec2i ng_subv2i(nvec2i a, nvec2i b);
-nvec2i ng_scalev2i(nvec2i a, int b);
+nvec2i ng_scalev2i(nvec2i a, float b);
 int    ng_dotv2i(nvec2i a, nvec2i b);
+
+// Vector 2 Short //
+nvec2s ng_addv2s(nvec2s a, nvec2s b);
+nvec2s ng_subv2s(nvec2s a, nvec2s b);
+nvec2s ng_scalev2s(nvec2s a, float b);
+int ng_dotv2s(nvec2s a, nvec2s b);
 
 
 // Vector 3 //

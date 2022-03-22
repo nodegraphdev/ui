@@ -52,7 +52,7 @@ nvec2i ng_subv2i(nvec2i a, nvec2i b)
 {
     return (nvec2i){a.x-b.x,a.y-b.y};
 }
-nvec2i ng_scalev2i(nvec2i a, int b)
+nvec2i ng_scalev2i(nvec2i a, float b)
 {
     return (nvec2i){a.x*b,a.y*b};
 }
@@ -61,6 +61,23 @@ int ng_dotv2i(nvec2i a, nvec2i b)
     return a.x*b.x+a.y*b.y;
 }
 
+// Vector 2 Short functions
+nvec2s ng_addv2s(nvec2s a, nvec2s b)
+{
+    return (nvec2s){a.x+b.x,a.y+b.y};
+}
+nvec2s ng_subv2s(nvec2s a, nvec2s b)
+{
+    return (nvec2s){a.x-b.x,a.y-b.y};
+}
+nvec2s ng_scalev2s(nvec2s a, float b)
+{
+    return (nvec2s){a.x*b,a.y*b};
+}
+int ng_dotv2s(nvec2s a, nvec2s b)
+{
+    return a.x*b.x+a.y*b.y;
+}
 
 
 // Vector 3 functions

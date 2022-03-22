@@ -3,6 +3,7 @@
 #include "ng_shader.h"
 #include "ng_properties.h"
 #include "ng_window.h"
+#include "ng_font.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -39,12 +40,15 @@ int ng_init()
 
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	ng_render_tree_init_();
 	ng_shader_init();
 	ng_painter_init_();
 	ng_properties_init_();
 
+	ng_font_init();
 
 	// Background color and clear depth
 	ng_render_set_clear_colorf(0.8, 0.1, 0.1);
@@ -91,6 +95,8 @@ void ng_begin_frame()
 }
 void ng_end_frame()
 {
+	ng_font_test();
+
 	glfwSwapBuffers(ng_window);
 }
 

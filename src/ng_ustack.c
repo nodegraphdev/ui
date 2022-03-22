@@ -1,6 +1,7 @@
 #include "ng_ustack.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 // TODO:
 //	Right now this frees nodes on pop when their "used" count is 0
@@ -37,6 +38,47 @@ void ng_ustack_free(ng_ustack* stack)
 	stack->last = 0;
 	stack->count = 0;
 	stack->elementsize = 0;
+}
+
+void* ng_ustack_packed(ng_ustack* stack)
+{
+	unsigned int sz = stack->elementsize * stack->count;
+	char* m = malloc(sz);
+	char* d = m;
+	char* end = m + sz;
+
+	for (ng_ustack_node* node = stack->first; node; node = node->next)
+	{
+		unsigned int nsz = stack->elementsize * node->used;
+		if (d + nsz > end) break;
+
+		memcpy(d, (char*)node + sizeof(ng_ustack_node), nsz);
+
+		d += nsz;
+	}
+
+	return m;
+}
+unsigned int ng_ustack_pour(ng_ustack* stack, void* dest, unsigned int size)
+{
+	unsigned int remaining = size;
+	char* d = dest;
+
+	for (ng_ustack_node* node = stack->first; node; node = node->next)
+	{
+		unsigned int nsz = stack->elementsize * node->used;
+		if (nsz > remaining) nsz = remaining;
+
+		memcpy(d, (char*)node + sizeof(ng_ustack_node), nsz);
+
+		d += nsz;
+		remaining -= nsz;
+
+		if (!remaining) break;
+		assert(remaining < size);
+	}
+
+	return size - remaining;
 }
 
 
@@ -161,4 +203,9 @@ void* ng_ustack_last(ng_ustack* stack)
 	if (node && node->used > 0)
 		return ng_ustack_node_at(stack, node, node->used - 1);
 	return 0;
+}
+
+unsigned long long ng_ustack_size(ng_ustack* stack)
+{
+	return stack->count * stack->elementsize;
 }

@@ -26,6 +26,11 @@ typedef struct ng_ustack
 void ng_ustack_alloc(ng_ustack* stack, unsigned int elementsize);
 void ng_ustack_free(ng_ustack* stack);
 
+// Returns a newly allocated continuous array of all elements in the ustack
+void* ng_ustack_packed(ng_ustack* stack);
+// Copies the content of the ustack to dest. Returns bytes written
+unsigned int ng_ustack_pour(ng_ustack* stack, void* dest, unsigned int size);
+
 // Returns the element once coppied in
 // Pushes and pops to the back
 void* ng_ustack_push(ng_ustack* stack, void* element);
@@ -41,3 +46,6 @@ void* ng_ustack_node_at(ng_ustack* stack, ng_ustack_node* node, unsigned int ind
 // Returns first and last elements of the stack
 void* ng_ustack_first(ng_ustack* stack);
 void* ng_ustack_last(ng_ustack* stack);
+
+// Calculates the size of a stack in bytes
+unsigned long long ng_ustack_size(ng_ustack* stack);

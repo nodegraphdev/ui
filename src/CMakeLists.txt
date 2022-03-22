@@ -18,6 +18,8 @@ set( SOURCES
 	ng_painter.c
 	ng_texture.h
 	ng_texture.c
+	ng_font.h
+	ng_font.c
 
 	ng_flex.c
 	ng_properties.h
@@ -36,7 +38,12 @@ set( SHADERS
 	shaders/ng_painter.fs
 	shaders/ng_painter.vs
 
+	shaders/ng_font.fs
+	shaders/ng_font.vs
+
 )
+
+
 # Append the directory to our public files, otherwise CMake can't find them
 set(HEADERS_PUBLIC_PATH "")
 foreach(PUBLIC_FILE ${HEADERS_PUBLIC})
@@ -52,7 +59,7 @@ endif()
 
 add_library( ngui ${SOURCES} ${HEADERS_PUBLIC_PATH})
 target_include_directories( ngui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( ngui ${GLFW_LIB_NAME} glad ngui_shaders )
+target_link_libraries( ngui ${GLFW_LIB_NAME} glad freetype ngui_shaders )
 
 if(UNIX)
 	target_link_libraries( ngui dl m )

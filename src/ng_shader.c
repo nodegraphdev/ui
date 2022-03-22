@@ -169,6 +169,7 @@ ng_shader* ng_shader_create(const char* vs, const char* fs)
     glBindAttribLocation(program, 0, "a_pos");
     glBindAttribLocation(program, 1, "a_color");
     glBindAttribLocation(program, 2, "a_uv");
+    glBindAttribLocation(program, 3, "a_glyph");
 
     // Link!
     glLinkProgram(program);
