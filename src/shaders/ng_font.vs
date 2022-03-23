@@ -14,12 +14,12 @@ out vec3 v_color;
 out vec4 v_worldpos;
 out vec2 v_uv;
 
-out int v_contour_count;
-out int v_contours;
-out int v_curves;
+flat out int v_contour_count;
+flat out int v_contours;
+flat out int v_curves;
 
 
-ivec2 g_dims;
+ivec2 g_dims = ivec2(1,1);
 int getShort(int index)
 {
 	

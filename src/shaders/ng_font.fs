@@ -16,7 +16,7 @@ uniform isampler2D u_tex;
 
 
 
-ivec2 g_dims;
+ivec2 g_dims = ivec2(1,1);
 int getShort(int index)
 {	
 	return texelFetch(u_tex, ivec2(mod(index, g_dims.x), (index / g_dims.x)), 0).r;
