@@ -5,9 +5,9 @@ in vec3 v_color;
 in vec2 v_uv;
 
 // Font glyph data
-in flat int v_contour_count;
-in flat int v_contours;
-in flat int v_curves;
+flat in int v_contour_count;
+flat in int v_contours;
+flat in int v_curves;
 
 
 out vec4 o_fragColor;
