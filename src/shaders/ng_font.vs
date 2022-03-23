@@ -19,11 +19,11 @@ out int v_contours;
 out int v_curves;
 
 
-uvec2 g_dims;
+ivec2 g_dims;
 int getShort(int index)
 {
 	
-	return texelFetch(u_tex, ivec2(mod(index, g_dims.x), floor(index / g_dims.x)), 0).r;
+	return texelFetch(u_tex, ivec2(mod(index, g_dims.x), (index / g_dims.x)), 0).r;
 }
 
 void main()
@@ -34,7 +34,7 @@ void main()
     gl_Position = u_projection * u_view * u_model * vec4(a_pos.xyz, 1.0);
 	
 	
-	g_dims = uvec2(textureSize(u_tex, 0));
+	g_dims = ivec2(textureSize(u_tex, 0));
 	
 	
 	int header_pos = getShort(int(a_glyph));
