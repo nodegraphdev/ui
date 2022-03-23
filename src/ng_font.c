@@ -7,7 +7,7 @@
 #include "ng_ustack.h"
 #include <time.h>
 #include <math.h>
-#include <cassert>
+#include <assert.h>
 #include <stdio.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -70,7 +70,7 @@ void ng_font_destroy(ng_font* font)
 
 }
 
-struct dy_font_glyph ng_font_demand_glyph(FT_Face face, char character);
+static struct dy_font_glyph ng_font_demand_glyph(FT_Face face, char character);
 
 #define glyph_count 128
 
@@ -78,9 +78,9 @@ ng_font* ng_font_load(const char* path)
 {
 	// Load the font out of Freetype
 	FT_Face face;
-	const char* error = FT_New_Face(ng_freetype_lib, path, 0, &face);
+	FT_Error error = FT_New_Face(ng_freetype_lib, path, 0, &face);
 
-
+	assert(error == 0);
 	
 	unsigned int byte_count = 0;
 

@@ -1,6 +1,6 @@
 #include "ng_texture.h"
 #include <stdlib.h>
-#include <cassert>
+#include <assert.h>
 #include <glad/glad.h>
 
 typedef struct ng_texture_data

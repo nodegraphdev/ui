@@ -63,6 +63,7 @@ target_link_libraries( ngui ${GLFW_LIB_NAME} glad freetype ngui_shaders )
 
 if(UNIX)
 	target_link_libraries( ngui dl m )
+	target_include_directories( ngui PRIVATE /usr/include/freetype2/ )
 endif()
 
 
