@@ -4,6 +4,7 @@
 #include "ng_properties.h"
 #include "ng_window.h"
 #include "ng_font.h"
+#include "ng_glinfo.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -17,6 +18,7 @@ extern void ng_painter_shutdown_();
 
 GLFWwindow* ng_window;
 
+
 int ng_init()
 {
 
@@ -26,6 +28,11 @@ int ng_init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+
+#if _DEBUG
+	// Enable debugging OpenGL when we're compiling for debug
+	ng_glinfo_debug_enable();
+#endif
 
 	const int window_width = 640;
 	const int window_height = 480;
@@ -38,22 +45,29 @@ int ng_init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		return 1;
 
+
+	ng_glinfo_dump(NG_GLINFO_DUMP_CONTEXT);
+#if _DEBUG
+	ng_glinfo_debug_attach_logger();
+#endif
+
+
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
 	ng_render_tree_init_();
 	ng_shader_init();
 	ng_painter_init_();
 	ng_properties_init_();
-
 	ng_font_init();
 
+	
 	// Background color and clear depth
 	ng_render_set_clear_colorf(0.8, 0.1, 0.1);
 	ng_render_set_clear_depth(1.0);
-	
 
 	return 0;
 }

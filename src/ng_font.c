@@ -130,7 +130,7 @@ ng_font* ng_font_load(const char* path)
 		height = up;
 	}
 
-	printf("%d bytes remaining", nsz - byte_count);
+	printf("%d bytes remaining\n", nsz - byte_count);
 	byte_count = nsz;
 
 	char* tex = malloc(byte_count);

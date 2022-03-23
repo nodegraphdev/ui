@@ -9,6 +9,8 @@ set( SOURCES
 	ng_ustack.h
 	ng_ustack.c
 	
+	ng_glinfo.h
+	ng_glinfo.c
 	ng_render.h
 	ng_render.c
 	ng_shader.h
