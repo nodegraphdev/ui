@@ -28,10 +28,14 @@ struct dy_font_glyph
 {
 	ng_ustack /*nvec2s*/         contours;
 	ng_ustack /*unsigned short*/ curves;
+
+	short width;
+	short height;
 };
 
 struct dy_font_shader_data_glyph_header
 {
+	short width;
 	short contour_count;
 
 	// These two are stored immediately after this struct
@@ -41,6 +45,7 @@ struct dy_font_shader_data_glyph_header
 
 struct dy_font_shader_data
 {
+	short units_per_em;
 	// Maps up ascii codes to offsets in shorts in the image
 	// (-1) means "Don't draw" or "Blank glyph"
 	short character_offsets[128];
@@ -79,6 +84,7 @@ ng_font* ng_font_load(const char* path)
 	// Load the font out of Freetype
 	FT_Face face;
 	FT_Error error = FT_New_Face(ng_freetype_lib, path, 0, &face);
+
 
 	assert(error == 0);
 	
@@ -143,6 +149,8 @@ ng_font* ng_font_load(const char* path)
 	struct dy_font_shader_data* sd = cur;
 	cur = sd + 1;
 
+	// Scaling factor
+	sd->units_per_em = face->units_per_EM;
 
 	for (int i = 0; i < glyph_count; i++)
 	{
@@ -159,6 +167,7 @@ ng_font* ng_font_load(const char* path)
 
 		sd->character_offsets[i] = ((char*)(gh) - tex) / 2;
 
+		gh->width = glyph->width;
 		gh->contour_count = glyph->contours.count;
 
 		cur += ng_ustack_pour(&glyph->contours, cur, end - cur);
@@ -171,7 +180,6 @@ ng_font* ng_font_load(const char* path)
 
 	ng_font_texture = ng_texture_create(NG_TEXTURE_FORMAT_R16I, tex, width, height);
 
-
 	FT_Done_Face(face);
 
 
@@ -179,7 +187,6 @@ ng_font* ng_font_load(const char* path)
 }
 
 #undef glyph_count
-
 
 
 
@@ -313,6 +320,8 @@ static struct dy_font_glyph ng_font_demand_glyph(FT_Face face, char character)
 	struct dy_font_glyph glyph;
 	glyph.contours = contours;
 	glyph.curves = curves;
+	glyph.width = face->glyph->metrics.width;
+	glyph.height = face->glyph->metrics.height;
 	return glyph;
 }
 
@@ -322,8 +331,7 @@ void aaa() {
 
 
 
-	const char str[] = "Hi.";
-	charcount = sizeof(str) - 1;
+	charcount = 128;
 
 	ng_font_shader = ng_shader_create(ng_font_vs, ng_font_fs);
 	
@@ -333,22 +341,19 @@ void aaa() {
 	ng_vtxbuf_alloc(&vb, 4 * charcount);
 	ng_idxbuf_alloc(&ib, 6 * charcount);
 
-	ng_vertex a[] = {
-		{{0.0, 0,0},{1,1,1},{0.0, 1},   str[0]},
-		{{0.6, 0,0},{1,1,1},{0.6, 1},   str[0]},
-		{{0.6, 1,0},{1,1,1},{0.6,-0.2}, str[0]},
-		{{0.0, 1,0},{1,1,1},{0.0,-0.2}, str[0]},
+	ng_vertex a[4 * 128];
+	
+	for (int i = 0; i < 128; i++)
+	{
+		nvec2 pos = { i % 16, i / 16 };
+		int d = i * 4;
 
-		{{0.6, 0,0},{1,1,1},{0.0, 1},   str[1]},
-		{{1.0, 0,0},{1,1,1},{0.4, 1},   str[1]},
-		{{1.0, 1,0},{1,1,1},{0.4,-0.2}, str[1]},
-		{{0.6, 1,0},{1,1,1},{0.0,-0.2}, str[1]},
+		a[d + 0] = (ng_vertex){ {pos.x+0, pos.y+0,0},{1,1,1},{0.0,  0.8}, i};
+		a[d + 1] = (ng_vertex){ {pos.x+1, pos.y+0,0},{1,1,1},{1.0,  0.8}, i};
+		a[d + 2] = (ng_vertex){ {pos.x+1, pos.y+1,0},{1,1,1},{1.0, -0.2}, i};
+		a[d + 3] = (ng_vertex){ {pos.x+0, pos.y+1,0},{1,1,1},{0.0, -0.2}, i};
+	}
 
-		{{1.0, 0,0},{1,1,1},{0.0, 1},   str[2]},
-		{{1.6, 0,0},{1,1,1},{0.6, 1},   str[2]},
-		{{1.6, 1,0},{1,1,1},{0.6,-0.2}, str[2]},
-		{{1.0, 1,0},{1,1,1},{0.0,-0.2}, str[2]},
-	};
 
 	ng_vtxbuf_push_many(&vb, &a[0], 4 * charcount);
 
@@ -368,12 +373,13 @@ extern ng_shader* ng_painter_default_shader;
 void ng_font_test()
 {
 
-	float scl = 400;
+	float scl = 120.0;
+	//float scl = 10 + fabs(cos(clock() / (float)CLOCKS_PER_SEC)) * 90.0;
 	nmat4x4 model = 
 	{{scl,  0,  0,0},
 	 {  0,scl,  0,0},
 	 {  0,  0,  1,0},
-	 { 60, 60,200,1}};
+	 { 0, 0,200,1}};
 
 	ng_shader_set(NG_SHADERPARAM_MODEL, &model);
 

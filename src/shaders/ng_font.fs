@@ -5,6 +5,9 @@ in vec3 v_color;
 in vec2 v_uv;
 
 // Font glyph data
+flat in float v_units_per_em;
+flat in float v_glyph_halfwidth;
+
 flat in int v_contour_count;
 flat in int v_contours;
 flat in int v_curves;
@@ -15,6 +18,9 @@ out vec4 o_fragColor;
 uniform isampler2D u_tex;
 
 
+const float k_epsilon = 0.0001;
+
+
 
 ivec2 g_dims = ivec2(1,1);
 int getShort(int index)
@@ -23,7 +29,7 @@ int getShort(int index)
 }
 vec2 getVec2(int index)
 {
-	return vec2 ( getShort(index), getShort(index + 1)) / 1000.0;
+	return vec2(getShort(index), getShort(index + 1)) / v_units_per_em;
 }
 
 
@@ -51,9 +57,10 @@ void main()
 	
 	
 	
-	vec2 o = v_uv;
+	// UV Pixel Coordinate
+	vec2 pix = v_uv;
 	
-	float m = 100.0;
+	float m = 70.0;
 	float alpha = 0.0;
 	
 	int coff = v_curves;
@@ -73,9 +80,9 @@ void main()
 			coff += 2;
 			
 			
-			p1 -= o;
-			p2 -= o;
-			p3 -= o;
+			p1 -= pix;
+			p2 -= pix;
+			p3 -= pix;
 			
 			
 			float a = p1.y - 2 * p2.y + p3.y;
@@ -85,9 +92,9 @@ void main()
 			float t1 = 0.0;
 			float t2 = 0.0;
 			
-			if(a < 0.0001 && a > -0.0001)
+			if(a < k_epsilon && a > -k_epsilon)
 			{
-				t1 = t2 = c / 2 * b;
+				t1 = t2 = c / (2.0 * b);
 			}
 			else
 			{
@@ -111,7 +118,7 @@ void main()
 			if((r & 1) != 0 && (t1 >= 0 && t1 < 1.0))
 			{
 				vec2 c = curve(p1, p2, p3, t1);
-				if(o.x >= 0.5)
+				if(pix.x >= v_glyph_halfwidth)
 				{					
 					if(c.x >= 0.0)
 					{
@@ -135,7 +142,7 @@ void main()
 			if((r & 2) != 0 && (t2 >= 0 && t2 < 1.0))
 			{
 				vec2 c = curve(p1, p2, p3, t2);
-				if(o.x >= 0.5)
+				if(pix.x >= v_glyph_halfwidth)
 				{
 					if(c.x >= 0.0)
 					{

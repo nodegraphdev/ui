@@ -14,9 +14,29 @@ out vec3 v_color;
 out vec4 v_worldpos;
 out vec2 v_uv;
 
+
+flat out float v_units_per_em;
+flat out float v_glyph_halfwidth;
+
 flat out int v_contour_count;
 flat out int v_contours;
 flat out int v_curves;
+
+
+
+// Image layout
+
+// Header
+const int k_units_per_em = 0;
+const int k_character_offsets = 1;
+
+// Glyph Header
+const int k_glyph_width = 0;
+const int k_glyph_contour_count = 1;
+const int k_glyph_contours = 2;
+
+
+
 
 
 ivec2 g_dims = ivec2(1,1);
@@ -37,19 +57,25 @@ void main()
 	g_dims = ivec2(textureSize(u_tex, 0));
 	
 	
-	int header_pos = getShort(int(a_glyph));
+	v_units_per_em = float(getShort(k_units_per_em));
+	
+	int header_pos = getShort(k_character_offsets + int(a_glyph));
+	
 	if(header_pos < 0)
 	{
 		// No data
+		v_glyph_halfwidth = 0.0;
 		v_contour_count = 0;
 		v_contours = 0;
 		v_curves = 0;
 	}
 	else
 	{
-		v_contour_count = getShort(header_pos + 0);
-		v_contours = header_pos + 1;
-		v_curves = header_pos + 1 + v_contour_count;
+		// We have a header pos, so pull data from the glyph
+		v_glyph_halfwidth = float(getShort(header_pos + k_glyph_width)) / v_units_per_em * 0.5;
+		v_contour_count = getShort(header_pos + k_glyph_contour_count);
+		v_contours = header_pos + k_glyph_contours;
+		v_curves = v_contours + v_contour_count;
 	}
 	
 }
