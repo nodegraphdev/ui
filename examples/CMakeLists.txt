@@ -1,5 +1,5 @@
-
-
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}../include )
 add_executable( example main.c )
+add_executable( test_css css.c )
 target_link_libraries( example ngui )
+target_link_libraries( test_css ngui )

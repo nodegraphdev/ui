@@ -1,3 +1,4 @@
+subdirs(css)
 
 # Private source files kept in /src/
 set( SOURCES 
@@ -61,7 +62,7 @@ endif()
 
 add_library( ngui ${SOURCES} ${HEADERS_PUBLIC_PATH})
 target_include_directories( ngui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( ngui ${GLFW_LIB_NAME} glad freetype ngui_shaders )
+target_link_libraries( ngui ${GLFW_LIB_NAME} glad freetype ngui_shaders ng_css )
 
 if(UNIX)
 	target_link_libraries( ngui dl m )
