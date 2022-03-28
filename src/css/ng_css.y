@@ -1,4 +1,4 @@
-%define api.pure true
+%define api.pure full
 %define api.prefix {ng_css}
 %define parse.error verbose
 
@@ -18,6 +18,7 @@
 
 %union {
 	char *str;
+	char letter;
 	int inum;
 	double dnum;
 }
@@ -27,21 +28,34 @@
 	int yyerror(void *yylval, const char *msg, const void *s);
 }
 
-%token	<str>			IDENT
-%token	<inum>			INT
-%token	<dnum>			DOUBLE
-%token					WS
+%token	<str>			IDENT "identifier"
+%token	<inum>			INT "integer"
+%token	<dnum>			DOUBLE "double"
+%token					WS "whitespace"
 
-%type	<str>			selector class_or_id class id top
+%type	<str>			selector class_or_id "class or id" class id top pattern
+%type	<letter>		nesting
 
 %destructor { free($$); } <str>
 
 %%
 
-top:			selector
+top:			maybe_space pattern maybe_space
 				{
-					*result = $$ = $1;
-					return 0;
+					*result = $$ = $2;
+					YYACCEPT;
+				}
+		;
+
+pattern:		selector
+				{
+					$$ = $1;
+				}
+		|		pattern nesting selector
+				{
+					char *str = ng_strhcatc($1, $2);
+					$$ = ng_strhcat(str, $3);
+					free($3);
 				}
 		;
 
@@ -52,6 +66,20 @@ selector:		IDENT
 					free($2);
 				}
 		|		class_or_id
+		;
+
+nesting:		maybe_space '>' maybe_space
+				{
+					$$ = '>';
+				}
+		|		WS
+				{
+					$$ = ' ';
+				}
+		;
+
+maybe_space:	WS
+		|
 		;
 
 class_or_id:	class
@@ -87,7 +115,7 @@ id		:		'#' IDENT
 
 int yyerror(void *yylval, const char *msg, const void *s)
 {
-	return fprintf(stderr, "ng_css:error:%s\n", msg);
+	return fprintf(stderr, "\033[31mng_css:error:\033[0m %s\n", msg);
 }
 
 void *ng_cssalloc(size_t size, void *yyscanner)

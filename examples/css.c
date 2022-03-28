@@ -3,6 +3,14 @@
 
 int main(int argc, char **argv)
 {
-	char *res = ng_css_parse_str("div#hi.hello");
-	printf("res: '%s'\n", res);
+	if (argc > 1)
+	{
+		char *res = ng_css_parse_str(argv[1]);
+		printf("res: '%s'\n", res);
+	}
+	else
+	{
+		fprintf(stderr, "Give me an argument\n");
+		return 1;
+	}
 }
