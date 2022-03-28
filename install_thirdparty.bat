@@ -20,6 +20,7 @@ cd thirdparty\win
 
 mkdir lib
 mkdir temp
+mkdir bin
 
 echo =========== Building GLFW ===========
 mkdir temp\glfw
@@ -28,18 +29,18 @@ git clone -b 3.3-stable https://github.com/glfw/glfw.git temp\glfw
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto cloneFail
 
-cmake temp\glfw -B temp\glfwbuild -D GLFW_BUILD_EXAMPLES=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_DOCS=OFF
+cmake temp\glfw -B temp\glfw_build -D GLFW_BUILD_EXAMPLES=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_DOCS=OFF
 
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto cmakeFail
 
-cmake --build temp\glfwbuild --config Release
+cmake --build temp\glfw_build --config Release
 
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto buildFail
 
 echo =========== Copying GLFW ===========
-copy temp\glfwbuild\src\Release\glfw3.lib lib\glfw3.lib
+copy temp\glfw_build\src\Release\glfw3.lib lib\glfw3.lib
 robocopy temp\glfw\include include /E
 
 echo ========= Building FreeType =========
@@ -49,19 +50,44 @@ git clone -b VER-2-11-1 https://gitlab.freedesktop.org/freetype/freetype.git tem
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto cloneFail
 
-cmake temp\freetype -B temp\freetypebuild -D CMAKE_BUILD_TYPE=Release
+cmake temp\freetype -B temp\freetype_build -D CMAKE_BUILD_TYPE=Release
 
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto cmakeFail
 
-cmake --build temp\freetypebuild --config Release
+cmake --build temp\freetype_build --config Release
 
 set A_ERRORLEVEL=%ERRORLEVEL%
 if %A_ERRORLEVEL% neq 0 goto buildFail
 
 echo ========= Copying FreeType =========
-copy temp\freetypebuild\Release\freetype.lib lib\freetype.lib
+copy temp\freetype_build\Release\freetype.lib lib\freetype.lib
 robocopy temp\freetype\include include /E
+
+
+echo ========= Building WinFlexBison =========
+mkdir temp\winflexbison
+git clone -b "v2.5.25" https://github.com/lexxmark/winflexbison.git temp\winflexbison
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto cloneFail
+
+cmake temp\winflexbison -B temp\winflexbison_build -D CMAKE_BUILD_TYPE=Release
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto cmakeFail
+
+cmake --build temp\winflexbison_build --config Release
+
+set A_ERRORLEVEL=%ERRORLEVEL%
+if %A_ERRORLEVEL% neq 0 goto buildFail
+
+echo ========= Copying WinFlexBison =========
+robocopy temp\winflexbison\bin\Release bin /E
+
+
+
+
 
 echo ============ Cleaning up ============
 rmdir /S /Q temp

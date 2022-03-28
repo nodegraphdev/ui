@@ -12,3 +12,7 @@ G*
 
 .cache
 compile_commands.json
+
+
+# Notepad++ Backup file
+*.bak

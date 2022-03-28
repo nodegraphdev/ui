@@ -71,14 +71,14 @@ class_or_id:	class
 
 class:			'.' IDENT
 				{
-					char *str = strndup(".", 1);
+					char *str = strdup(".");
 					$$ = ng_strhcat(str, $2);
 				}
 		;
 
 id		:		'#' IDENT
 				{
-					char *str = strndup("#", 1);
+					char *str = strdup("#");
 					$$ = ng_strhcat(str, $2);
 				}
 		;

@@ -12,6 +12,17 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/out )
 
 project( NGUI )
 
+
+# On Linux, we can just install packages. On Windows, we need somewhere for them to live
+if(WIN32)
+link_directories( thirdparty/win/lib )
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win/bin")
+include_directories( thirdparty/win/include )
+add_compile_definitions( YY_NO_UNISTD_H=1 )
+endif()
+
+
+
 # Thirdparty libraries
 add_subdirectory( thirdparty/glad )
 
@@ -22,12 +33,6 @@ add_subdirectory( rescompile )
 add_subdirectory( src )
 target_include_directories( ngui PRIVATE include/ngui )
 
-
-# On Linux, we can just install packages. On Windows, we need somewhere for them to live
-if(WIN32)
-target_include_directories( ngui PRIVATE thirdparty/win/include )
-link_directories( thirdparty/win/lib )
-endif()
 
 
 # Examples
