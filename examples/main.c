@@ -94,7 +94,6 @@ int main()
 		draw_ui();
 		ng_commit();
 
-
 		ng_end_frame();
 	}
 

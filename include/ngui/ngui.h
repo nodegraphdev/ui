@@ -26,6 +26,15 @@ void ng_begin_frame();
 void ng_end_frame();
 
 
+/* These functions set the name/id/class of the next render
+ * object/container to be created. By default the name/id/class are
+ * all empty strings "". ng_with_name is special in that it also hooks
+ * into ng_css, so once you call this, any calls to ng_get_propx
+ * will work with properties set in CSS. */
+void ng_with_name(char *name);
+void ng_with_id(char *id);
+void ng_with_class(char *class);
+
 /* Data must be freeable with free() */
 /* TODO: destructor function */
 void ng_add_render_object(ng_size_func *size, ng_paint_func *paint, void *data);
@@ -60,7 +69,6 @@ void *ng_get_propp(char *key);
 
 void ng_reset_props();
 
-// TODO: implement
 void ng_save_props();
 void ng_restore_props();
 

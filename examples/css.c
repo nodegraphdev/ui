@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 	if (argc > 1)
 	{
 		struct ng_css_pattern *res = ng_css_parse_str(argv[1]);
-		printf("res: '%s'\n", res->pattern);
+		ng_css_print_pattern(stdout, res);
 	}
 	else
 	{

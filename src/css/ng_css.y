@@ -39,10 +39,9 @@
 %token	<dnum>			DOUBLE "double"
 %token					WS "whitespace"
 
-%type	<str>			selector class_or_id "class or id" class id pattern value
-%type	<letter>		nesting
+%type	<str>			selector class_or_id "class or id" class id pattern value nesting
 %type	<prop>			props "properties" prop "property" prop_list "braced property list"
-%type	<pattern>		declaration top
+%type	<pattern>		declarations declaration top
 
 %destructor { free($$); } <str>
 %destructor { ng_css_free_prop($$); } <prop>
@@ -50,10 +49,18 @@
 
 %%
 
-top:			maybe_space declaration maybe_space
+top:			maybe_space declarations maybe_space
 				{
 					*result = $$ = $2;
 					YYACCEPT;
+				}
+		;
+
+declarations:	{ $$ = NULL; }
+		|		declarations maybe_space declaration
+				{
+					$3->prev = $1;
+					$$ = $3;
 				}
 		;
 
@@ -62,6 +69,7 @@ declaration:	pattern maybe_space prop_list
 					$$ = malloc(sizeof(struct ng_css_pattern));
 					$$->yields = $3;
 					$$->pattern = $1;
+					$$->prev = NULL;
 				}
 		;
 
@@ -106,7 +114,7 @@ pattern:		selector
 				}
 		|		pattern nesting selector
 				{
-					char *str = ng_strhcatc($1, $2);
+					char *str = ng_strhcat($1, $2);
 					$$ = ng_strhcat(str, $3);
 					free($3);
 				}
@@ -123,11 +131,11 @@ selector:		IDENT
 
 nesting:		maybe_space '>' maybe_space
 				{
-					$$ = '>';
+					$$ = " >";
 				}
 		|		WS
 				{
-					$$ = ' ';
+					$$ = " ";
 				}
 		;
 
