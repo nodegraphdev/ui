@@ -5,8 +5,8 @@ int main(int argc, char **argv)
 {
 	if (argc > 1)
 	{
-		char *res = ng_css_parse_str(argv[1]);
-		printf("res: '%s'\n", res);
+		struct ng_css_pattern *res = ng_css_parse_str(argv[1]);
+		printf("res: '%s'\n", res->pattern);
 	}
 	else
 	{

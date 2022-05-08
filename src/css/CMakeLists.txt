@@ -16,6 +16,12 @@ add_flex_bison_dependency(ng_css_l ng_css_y)
 
 add_library(ng_css ${BISON_ng_css_y_OUTPUTS} ${FLEX_ng_css_l_OUTPUTS}
   ng_str.h
-  ng_str.c)
+  ng_str.c
+  ng_properties.h
+  ng_properties.c
+  ng_css.c)
 target_include_directories(ng_css
-  PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../include)

@@ -6,7 +6,6 @@ set( SOURCES
 
 	ng_math.c
 	ng_render_tree.c
-	ng_properties.c
 	ng_ustack.h
 	ng_ustack.c
 	
@@ -24,10 +23,7 @@ set( SOURCES
 	ng_font.h
 	ng_font.c
 
-	ng_flex.c
-	ng_properties.h
-	ng_window.h
-)
+	ng_flex.c)
 
 # Public headers kept in /include/ngui/
 set( HEADERS_PUBLIC

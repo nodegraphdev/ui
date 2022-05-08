@@ -12,4 +12,6 @@ struct ng_css_pattern
 	char *pattern;
 };
 
-char *ng_css_parse_str(char *str);
+struct ng_css_pattern *ng_css_parse_str(char *str);
+void ng_css_free_prop(struct ng_css_prop *prop);
+void ng_css_free_pattern(struct ng_css_pattern *pattern);

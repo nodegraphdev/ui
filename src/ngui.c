@@ -1,7 +1,7 @@
 #include "ngui.h"
 #include "ng_render.h"
 #include "ng_shader.h"
-#include "ng_properties.h"
+#include "css/ng_properties.h"
 #include "ng_window.h"
 #include "ng_font.h"
 #include "ng_glinfo.h"

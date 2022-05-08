@@ -24,7 +24,7 @@ struct ng_prop
 struct ng_prop_def
 {
 	char key[32];
-	enum ng_prop_type type;
+	int type;
 	int flags;
 
 	struct ng_prop_def *previous;

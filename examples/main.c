@@ -83,7 +83,7 @@ void draw_ui()
 int main()
 {
 	ng_init();
-	printf("Hello!");
+	printf("Hello!\n");
 
 	ng_register_prop("test-prefix", NG_PROP_STRING, 0);
 

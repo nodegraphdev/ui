@@ -1,4 +1,4 @@
-#include <ngui.h>
+#include <ngui/ngui.h>
 #include "ng_properties.h"
 #include <stdlib.h>
 #include <string.h>

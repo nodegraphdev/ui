@@ -13,7 +13,11 @@
 	#include "ng_str.h"
 }
 
-%parse-param {char **result}
+%code requires {
+	#include <ngui/ng_css.h>
+}
+
+%parse-param {struct  ng_css_pattern **result}
 %param {void *scanner}
 
 %union {
@@ -21,6 +25,8 @@
 	char letter;
 	int inum;
 	double dnum;
+	struct ng_css_prop *prop;
+	struct ng_css_pattern *pattern
 }
 
 %code {
@@ -33,18 +39,65 @@
 %token	<dnum>			DOUBLE "double"
 %token					WS "whitespace"
 
-%type	<str>			selector class_or_id "class or id" class id top pattern
+%type	<str>			selector class_or_id "class or id" class id pattern value
 %type	<letter>		nesting
+%type	<prop>			props "properties" prop "property" prop_list "braced property list"
+%type	<pattern>		declaration top
 
 %destructor { free($$); } <str>
+%destructor { ng_css_free_prop($$); } <prop>
+%destructor { ng_css_free_pattern($$); } <pattern>
 
 %%
 
-top:			maybe_space pattern maybe_space
+top:			maybe_space declaration maybe_space
 				{
 					*result = $$ = $2;
 					YYACCEPT;
 				}
+		;
+
+declaration:	pattern maybe_space prop_list
+				{
+					$$ = malloc(sizeof(struct ng_css_pattern));
+					$$->yields = $3;
+					$$->pattern = $1;
+				}
+		;
+
+prop_list:		'{' maybe_space props maybe_space '}'
+				{
+					$$ = $3;
+				}
+		;
+
+props:			{ $$ = NULL; }
+		|		prop
+		|		props semi prop maybe_semi
+				{
+					$3->prev = $1;
+					$$ = $3;
+				}
+		;
+
+maybe_semi:		semi
+		| 		maybe_space
+		;
+
+semi:			maybe_space ';' maybe_space
+		;
+
+prop:			IDENT maybe_space ':' maybe_space value
+				{
+					$$ = malloc(sizeof(struct ng_css_prop));
+					$$->key = $1;
+					$$->value = $5;
+					$$->prev = NULL;
+				}
+		;
+
+// TODO
+value:			IDENT
 		;
 
 pattern:		selector
@@ -133,10 +186,10 @@ void ng_cssfree(void *ptr, void *yyscanner)
 	free(ptr);
 }
 
-char *ng_css_parse_str(char *str)
+struct ng_css_pattern *ng_css_parse_str(char *str)
 {
 	yyscan_t scanner;
-	char *out;
+	struct ng_css_pattern *out;
 
 	ng_csslex_init(&scanner);
 	ng_css_scan_string(str, scanner);

@@ -1,5 +1,5 @@
 #include <ngui.h>
-#include "ng_properties.h"
+#include "css/ng_properties.h"
 #include "ng_window.h"
 
 #include <stdlib.h>
