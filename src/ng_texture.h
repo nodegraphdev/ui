@@ -27,7 +27,7 @@ typedef void ng_texture;
 // Pixels can be NULL for a blank texture
 ng_texture* ng_texture_create(enum NG_TEXTURE_FORMAT format, unsigned char* pixels, unsigned int width, unsigned int height);
 void ng_texture_destroy(ng_texture* texture);
-void ng_texture_bind(ng_texture* texture);
+void ng_texture_bind(ng_texture* texture, int unit);
 void ng_texture_get_dimensions(ng_texture* texture, unsigned int* width, unsigned int* height);
 
 

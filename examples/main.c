@@ -91,7 +91,7 @@ int main()
 	{
 		ng_begin_frame();
 
-		draw_ui();
+		//draw_ui();
 		ng_commit();
 
 

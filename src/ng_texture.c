@@ -79,10 +79,11 @@ ng_texture* ng_texture_create(enum NG_TEXTURE_FORMAT format, unsigned char* pixe
     return (ng_texture*)data;
 }
 
-void ng_texture_bind(ng_texture* texture)
+void ng_texture_bind(ng_texture* texture, int unit)
 {
     ng_texture_data* data = texture;
 
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, data->id);
 }
 

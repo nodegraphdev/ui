@@ -252,7 +252,10 @@ static void ng_brush_paint_vertices_(ng_paintbrush* brush, ng_vertex* v, int cou
 	for (int i = 0; i < count; i++)
 	{
 		nvec3 p = v[i].pos;
-		v[i].color = ng_brush_vtx_color_(brush, (nvec2i){ p.x, p.y });
+		nvec4 col;
+		*(nvec3*)&col = ng_brush_vtx_color_(brush, (nvec2i) { p.x, p.y });
+		col.w = 1.0;
+		v[i].color = col;
 	}
 }
 

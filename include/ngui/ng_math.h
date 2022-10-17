@@ -20,6 +20,16 @@ typedef struct nvec2s {
 typedef struct nvec3 {
 	float x, y, z;
 } nvec3;
+typedef struct nvec3c {
+	union {
+		struct {
+			char x, y, z;
+		};
+		struct {
+			char r, g, b;
+		};
+	};
+} nvec2c;
 typedef struct nvec4 {
 	float x, y, z, w;
 } nvec4;

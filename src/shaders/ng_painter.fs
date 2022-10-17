@@ -1,6 +1,6 @@
 #version 330 core
 precision lowp float;
-in vec3 v_color;
+in vec4 v_color;
 in vec2 v_uv;
 out vec4 o_fragColor;
 void main() {

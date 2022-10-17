@@ -15,7 +15,9 @@ void ng_render_clear_frame();
 
 
 // View 
-void ng_render_setviewport(int x, int y, int w, int h);
+void ng_render_viewport_push(int x, int y, int w, int h);
+void ng_render_viewport_pop();
+void ng_render_viewport_pop_all();
 
 
 // Vertex & Index buffer objects

@@ -1,7 +1,7 @@
 #version 330 core
 precision lowp float;
 
-in vec3 v_color;
+in vec4 v_color;
 in vec2 v_uv;
 
 // Font glyph data
@@ -15,7 +15,9 @@ flat in int v_curves;
 
 out vec4 o_fragColor;
 
-uniform isampler2D u_tex;
+uniform isampler2D u_texturedata;
+uniform sampler2D u_texturecolor;
+
 
 
 const float k_epsilon = 0.0001;
@@ -25,7 +27,7 @@ const float k_epsilon = 0.0001;
 ivec2 g_dims = ivec2(1,1);
 int getShort(int index)
 {	
-	return texelFetch(u_tex, ivec2(mod(index, g_dims.x), (index / g_dims.x)), 0).r;
+	return texelFetch(u_texturedata, ivec2(mod(index, g_dims.x), (index / g_dims.x)), 0).r;
 }
 vec2 getVec2(int index)
 {
@@ -53,7 +55,7 @@ void main()
 	
 	
 	
-	g_dims = ivec2(textureSize(u_tex, 0));
+	g_dims = ivec2(textureSize(u_texturedata, 0));
 	
 	
 	
@@ -171,14 +173,15 @@ void main()
 //	o_fragColor = vec4(1.0, v_uv.x, v_uv.y, alpha);
 	
 	
-	vec2 dims = textureSize(u_tex, 0);
+	vec2 dims = textureSize(u_texturedata, 0);
 	ivec2 pos = ivec2(v_uv * dims);
 	
-	vec4 hh = texelFetch(u_tex, pos, 0);
+	vec4 hh = texelFetch(u_texturedata, pos, 0);
 	
 	
-	
+	//v_color.xyz
 	//o_fragColor = vec4(hh.r / 800.0, 0.0, alpha,1.0);
+	//o_fragColor = vec4(texture(u_texturecolor,v_uv).xyz, alpha);
 	o_fragColor = vec4(v_color.xyz, alpha);
 
 }

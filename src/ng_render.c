@@ -1,11 +1,68 @@
 #include "ng_render.h"
 #include <glad/glad.h>
 #include <stddef.h>
+#include <assert.h>
+#include <stdio.h>
 
-void ng_render_setviewport(int x, int y, int w, int h)
+static void ng_render_viewport_set_(nvec4* view)
 {
-	glViewport(x, y, w, h);
+	glViewport(view->x, view->y, view->z, view->w);
 }
+
+
+// If we need to go more than 16 viewports deep, something's wrong elsewhere
+#define NG_MAX_VIEWPORTS 16
+static int ng_viewport_stack_count_ = 0;
+static nvec4 ng_viewport_stack_[NG_MAX_VIEWPORTS];
+void ng_render_viewport_push(int x, int y, int w, int h)
+{
+	assert(ng_viewport_stack_count_ >= 0 && ng_viewport_stack_count_ < NG_MAX_VIEWPORTS);
+	if (ng_viewport_stack_count_ >= NG_MAX_VIEWPORTS)
+	{
+		puts("HEY! TOO MANY VIEWPORTS!");
+		return;
+	}
+
+	nvec4* view = &ng_viewport_stack_[ng_viewport_stack_count_++];
+
+	// Push the viewport onto the stack
+	*view = (nvec4){x, y, w, h};
+
+	// Apply it 
+	ng_render_viewport_set_(view);
+}
+
+void ng_render_viewport_pop()
+{
+
+	assert(ng_viewport_stack_count_ >= 1 && ng_viewport_stack_count_ < NG_MAX_VIEWPORTS);
+	if (ng_viewport_stack_count_ <= 0)
+	{
+		puts("HEY! TOO FEW VIEWPORTS!");
+		return;
+	}
+
+	// Drop the pos
+	--ng_viewport_stack_count_;
+
+	// Can we apply this new viewport?
+	if (ng_viewport_stack_count_ == 0)
+	{
+		// Nope!
+		return;
+	}
+	
+	// Yes!
+	ng_render_viewport_set_(&ng_viewport_stack_[ng_viewport_stack_count_ - 1]);
+
+
+}
+void ng_render_viewport_pop_all()
+{
+	ng_viewport_stack_count_ = 0;
+}
+
+
 void ng_render_set_clear_colorf(float r, float g, float b)
 {
 	glClearColor(r, g, b, 1.0f);
@@ -115,7 +172,7 @@ void ng_render_draw_mesh(ng_vbo vbo, ng_ibo ibo, unsigned int start, unsigned in
 	);
 	glVertexAttribPointer(
 		1,                                // position 1
-		3,                                // three floats
+		4,                                // three floats
 		GL_FLOAT,                         // elements are floats
 		GL_FALSE,                         //
 		sizeof(ng_vertex),                // stride

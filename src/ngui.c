@@ -104,13 +104,14 @@ void ng_begin_frame()
 	ng_shader_set(NG_SHADERPARAM_VIEW, &view);
 	ng_shader_set(NG_SHADERPARAM_PROJECTION, &proj);
 
-	ng_render_setviewport(0, 0, width, height);
+	ng_render_viewport_push(0, 0, width, height);
 
 }
 void ng_end_frame()
 {
 	ng_font_test();
 
+	ng_render_viewport_pop_all();
 	glfwSwapBuffers(ng_window);
 }
 

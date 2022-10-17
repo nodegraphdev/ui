@@ -6,7 +6,7 @@
 typedef struct ng_vertex
 {
 	nvec3 pos;
-	nvec3 color;
+	nvec4 color;
 	nvec2 uv;
 	float glyph;
 } ng_vertex;

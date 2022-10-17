@@ -57,6 +57,8 @@ static ng_parameter ng_shader_params[NG_SHADERPARAM_COUNT] = {
     PARAMETER(MAT4, model)
     PARAMETER(MAT4, view)
     PARAMETER(MAT4, projection)
+    PARAMETER(INT1, texturecolor)
+    PARAMETER(INT1, texturedata)
 };
 #undef PARAMETER
 
@@ -213,6 +215,15 @@ void ng_shader_set(int parameter, void* data)
 
     // Apply it
     ng_apply_parameter_(parameter);
+}
+
+void* ng_shader_get(int parameter)
+{
+    assert(parameter >= 0 && parameter < NG_SHADERPARAM_COUNT);
+
+    ng_parameter* uni = &ng_shader_params[parameter];
+
+    return uni->data;
 }
 
  
