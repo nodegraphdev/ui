@@ -1,6 +1,7 @@
 %define api.pure full
 %define api.prefix {ng_css}
-%define parse.error verbose
+%define parse.error detailed
+%define parse.lac full
 
 %code top {
 	#include <stdio.h>
@@ -31,12 +32,12 @@
 
 %code {
 	#include "ng_css_l.h"
-	int yyerror(void *yylval, const char *msg, const void *s);
+	int yyerror(void *yylval, const void *scanner, const char *msg);
 }
 
 %token	<str>			IDENT "identifier"
-%token	<inum>			INT "integer"
-%token	<dnum>			DOUBLE "double"
+/* %token	<inum>			INT "integer" */
+/* %token	<dnum>			DOUBLE "double" */
 %token					WS "whitespace"
 
 %type	<str>			selector class_or_id "class or id" class id pattern value nesting
@@ -49,9 +50,9 @@
 
 %%
 
-top:			maybe_space declarations maybe_space
+top:			declarations maybe_space
 				{
-					*result = $$ = $2;
+					*result = $$ = $1;
 					YYACCEPT;
 				}
 		;
@@ -73,23 +74,18 @@ declaration:	pattern maybe_space prop_list
 				}
 		;
 
-prop_list:		'{' maybe_space props maybe_space '}'
+prop_list:		'{' maybe_space props '}'
 				{
 					$$ = $3;
 				}
 		;
 
 props:			{ $$ = NULL; }
-		|		prop
-		|		props semi prop maybe_semi
+		|		props prop semi
 				{
-					$3->prev = $1;
-					$$ = $3;
+					$2->prev = $1;
+					$$ = $2;
 				}
-		;
-
-maybe_semi:		semi
-		| 		maybe_space
 		;
 
 semi:			maybe_space ';' maybe_space
@@ -174,9 +170,9 @@ id		:		'#' IDENT
 
 %%
 
-int yyerror(void *yylval, const char *msg, const void *s)
+int yyerror(void *yylval, const void *scanner, const char *msg)
 {
-	return fprintf(stderr, "\033[31mng_css:error:\033[0m %s\n", msg);
+	return fprintf(stderr, "\033[31mng_css:error:\033[0m %s %p\n", msg, scanner);
 }
 
 void *ng_cssalloc(size_t size, void *yyscanner)
@@ -197,7 +193,7 @@ void ng_cssfree(void *ptr, void *yyscanner)
 struct ng_css_pattern *ng_css_parse_str(char *str)
 {
 	yyscan_t scanner;
-	struct ng_css_pattern *out;
+	struct ng_css_pattern *out = NULL;
 
 	ng_csslex_init(&scanner);
 	ng_css_scan_string(str, scanner);

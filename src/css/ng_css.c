@@ -8,6 +8,9 @@ static char *ng_next_name_ = "",
 
 void ng_css_free_prop(struct ng_css_prop *prop)
 {
+	if (!prop)
+		return;
+
 	free(prop->key);
 	free(prop->value);
 
@@ -19,6 +22,9 @@ void ng_css_free_prop(struct ng_css_prop *prop)
 
 void ng_css_free_pattern(struct ng_css_pattern *pattern)
 {
+	if (!pattern)
+		return;
+
 	ng_css_free_prop(pattern->yields);
 	free(pattern->pattern);
 	free(pattern);

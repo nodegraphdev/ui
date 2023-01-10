@@ -15,12 +15,13 @@ int yyerror(const char *msg);
 
 %%
 
-[a-zA-Z\-_][a-zA-Z\-0-9_]* { yylval->str = strdup(yytext); return IDENT; }
-[-+]?[[:digit:]]+ { yylval->inum = strtol(yytext, NULL, 10); return INT; }
-[-+]?[[:digit:]]+\.[[:digit:]]* { yylval->dnum = strtod(yytext, NULL); return DOUBLE; }
+[a-zA-Z\-0-9_]* { yylval->str = strdup(yytext); return IDENT; }
 
 [ \t\r\n\v]+ { return WS; }
 
 . { return *yytext; }
 
 %%
+
+/* [-+]?[[:digit:]]+ { yylval->inum = strtol(yytext, NULL, 10); return INT; } */
+/* [-+]?[[:digit:]]+\.[[:digit:]]* { yylval->dnum = strtod(yytext, NULL); return DOUBLE; } */
